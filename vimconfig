@@ -16,10 +16,13 @@ set laststatus=2
 " Show Whitepace Characters
 set list
 set listchars =tab:▸\ ,eol:¬
-" set softtabstop=2
-" set tabstop=2
-" set shiftwidth=2
-" set expandtab
+set softtabstop=2
+set tabstop=2
+set shiftwidth=2
+set expandtab
+
+" Disable folding
+set nofoldenable
 
 """""""""""""""""""""""""""""
 " Vundle
@@ -35,14 +38,21 @@ call vundle#begin()
 
 " Let Vundle manage Vundle, required
 Plugin 'gmarik/Vundle.vim'
+
 " The Super awesome file manager¬
 Plugin 'scrooloose/nerdtree'
 Plugin 'mileszs/ack.vim'
+
 " The Nice line at the bottom of the screen¬
 Plugin 'itchyny/lightline.vim'
+
 " Themes¬
 Plugin 'altercation/vim-colors-solarized'
 Plugin 'tomasr/molokai'
+
+" Markdown Vim Mode
+Plugin 'godlygeek/tabular'
+Plugin 'plasticboy/vim-markdown'
 
 call vundle#end()            " required
 filetype plugin indent on    " required
