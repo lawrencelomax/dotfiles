@@ -77,7 +77,7 @@ highlight nonText ctermbg=NONE
 " highlight the 80th column
 " In Vim >= 7.3, also highlight columns 120+
 if exists('+colorcolumn')
-  let &colorcolumn="80,".join(range(120,500),",")
+  colorcolumn=+1
 else
 " fallback for Vim < v7.3
   autocmd BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>80v.\+', -1)
