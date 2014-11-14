@@ -69,19 +69,14 @@ for scheme in [ 'molokai', 'solarized', 'desert' ]
 endfor
 
 " Color Overrides
+highlight Normal ctermbg=NONE
 highlight NonText guibg=#060606
 highlight Folded  guibg=#0A0A0A guifg=#9090D0
-highlight Normal ctermbg=NONE
-highlight nonText ctermbg=NONE
+highlight ColorColumn ctermbg=23 guibg=#2c2d27
 
-" highlight the 80th column
-" In Vim >= 7.3, also highlight columns 120+
-if exists('+colorcolumn')
-  colorcolumn=+1
-else
-" fallback for Vim < v7.3
-  autocmd BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>80v.\+', -1)
-endif
+" Set Text Gutter at 80 chars
+let textwidth=80
+let &colorcolumn="80,".join(range(120,999),",")
 
 """""""""""""""""""""""""""""
 " Appearance
