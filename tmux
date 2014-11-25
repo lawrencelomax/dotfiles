@@ -3,6 +3,10 @@ set -g prefix C-a
 unbind C-b
 bind C-a send-prefix
 
+# Enable UTF8
+set status-utf8 on
+set utf8 on
+
 # 256 Color
 set -g default-terminal "screen-256color"
 
