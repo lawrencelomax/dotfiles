@@ -3,6 +3,9 @@ set -g prefix C-a
 unbind C-b
 bind C-a send-prefix
 
+# Nesting sessions with double prefix
+bind-key a send-prefix
+
 # Enable UTF8
 set status-utf8 on
 set utf8 on
@@ -24,5 +27,3 @@ bind r source-file ~/.tmux.conf
 unbind ^A
 bind ^A select-pane -t :.+
 
-# Nesting sessions with double prefix
-bind-key b send-prefix
