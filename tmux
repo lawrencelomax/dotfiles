@@ -13,6 +13,9 @@ set -g default-terminal "screen-256color"
 # Put the Status Bar on the Top
 set-option -g status-position top
 
+# Change the default bar color
+set -g status-bg colour44
+
 # Force a reload of the config file
 unbind r
 bind r source-file ~/.tmux.conf
