@@ -14,9 +14,5 @@ antigen bundle mercurial
 antigen bundle vundle
 antigen bundle zsh-users/zsh-syntax-highlighting
 
-# Load a theme
-# Currently superceeded by powerline
-# antigen theme ys
-
 # Tell antigen that you're done.
 antigen apply

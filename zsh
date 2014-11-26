@@ -5,4 +5,8 @@ source ~/.dotfiles/antigen
 source ~/.dotfiles/env_exports
 
 # Source Powerline
-source ~/.powerline/bindings/zsh/powerline.zsh
+if [[ -z "$POWERLINE_ENABLED" ]]
+  source ~/.powerline/bindings/zsh/powerline.zsh
+then
+  antigen theme ys
+fi
