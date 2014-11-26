@@ -19,6 +19,12 @@ set-option -g status-position top
 # Change the default bar color
 set -g status-bg colour44
 
+# Vim style keybindings
+setw -g mode-keys vi
+bind-key -t vi-copy 'v' begin-selection # Begin selection in copy mode.
+bind-key -t vi-copy 'C-v' rectangle-toggle # Begin selection in copy mode.
+bind-key -t vi-copy 'y' copy-selection # Yank selection in copy mode.
+
 # Smart pane switching with awareness of vim splits
 is_vim='echo "#{pane_current_command}" | grep -iqE "(^|\/)g?(view|n?vim?)(diff)?$"'
 bind -n C-h if-shell "$is_vim" "send-keys C-h" "select-pane -L"
