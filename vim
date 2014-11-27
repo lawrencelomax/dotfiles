@@ -24,11 +24,15 @@ set expandtab
 " Disable folding
 set nofoldenable
 
+" Search as you type
+set incsearch
+nnoremap <CR> :nohlsearch<CR><CR>
+
 """""""""""""""""""""""""""""
 " Vundle
 """""""""""""""""""""""""""""
 
-" Begin Vundle Plugins
+" Begin Vundle lugins
 set nocompatible              " be iMproved, required
 filetype off                  " required
 
@@ -43,12 +47,11 @@ Plugin 'gmarik/Vundle.vim'
 Plugin 'scrooloose/nerdtree'
 Plugin 'mileszs/ack.vim'
 
+" CtrlP Fuzzzy Find & Most Recently Used
+Plugin 'kien/ctrlp.vim'
+
 " The Nice line at the bottom of the screen¬
 Plugin 'itchyny/lightline.vim'
-
-" Themes¬
-Plugin 'altercation/vim-colors-solarized'
-Plugin 'tomasr/molokai'
 
 " Markdown Vim Mode
 Plugin 'godlygeek/tabular'
@@ -56,6 +59,10 @@ Plugin 'plasticboy/vim-markdown'
 
 " Nesting sessions with double prefix
 Bundle 'christoomey/vim-tmux-navigator'
+
+" Themes¬
+Plugin 'altercation/vim-colors-solarized'
+Plugin 'tomasr/molokai'
 
 call vundle#end()            " required
 filetype plugin indent on    " required

@@ -3,8 +3,10 @@ set -g prefix C-a
 unbind C-b
 bind C-a send-prefix
 
-# Nesting sessions with double prefix
+# Send to nested session with C-a a
 bind-key a send-prefix
+# Send to nested session with C-b
+bind-key -n C-b send-prefix
 
 # Enable UTF8
 set status-utf8 on
