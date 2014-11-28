@@ -50,6 +50,9 @@ Plugin 'mileszs/ack.vim'
 " CtrlP Fuzzzy Find & Most Recently Used
 Plugin 'kien/ctrlp.vim'
 
+" Zoomwin for Making Splits fullscreen then back
+Plugin 'taylor/vim-zoomwin'
+
 " The Nice line at the bottom of the screen¬
 Plugin 'itchyny/lightline.vim'
 
