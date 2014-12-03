@@ -8,10 +8,6 @@ bind-key a send-prefix
 # Send to nested session with C-b
 bind-key -n C-b send-prefix
 
-# Enable UTF8
-set status-utf8 on
-set utf8 on
-
 # 256 Color
 set -g default-terminal "screen-256color"
 
