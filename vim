@@ -1,34 +1,4 @@
 """""""""""""""""""""""""""""
-" Editing Behavior
-"""""""""""""""""""""""""""""
-
-" Backspace deletes like most programs in insert mode
-set backspace=2   
-set backspace=indent,eol,start
-
-" http://robots.thoughtbot.com/post/18739402579/global-gitignore#comment-458413287
-set noswapfile
-" display incomplete commands
-set showcmd 
-" Always display the status line
-set laststatus=2  
-
-" Show Whitepace Characters
-set list
-set listchars =tab:▸\ ,eol:¬
-set softtabstop=2
-set tabstop=2
-set shiftwidth=2
-set expandtab
-
-" Disable folding
-set nofoldenable
-
-" Search as you type
-set incsearch
-nnoremap <CR> :nohlsearch<CR><CR>
-
-"""""""""""""""""""""""""""""
 " Vundle
 """""""""""""""""""""""""""""
 
@@ -48,6 +18,7 @@ Plugin 'scrooloose/nerdtree'
 Plugin 'mileszs/ack.vim'
 
 " CtrlP Fuzzzy Find & Most Recently Used
+" Plugin 'Shougo/unite.vim'
 Plugin 'kien/ctrlp.vim'
 
 " Zoomwin for Making Splits fullscreen then back
@@ -73,23 +44,16 @@ filetype plugin indent on    " required
 """""""""""""""""""""""""""""
 " Themes
 """""""""""""""""""""""""""""
+" Enable Syntax Highlighting
 syntax on
-"set background=dark
-set t_Co=256 " 256 colors in terminal
 
-"  Tweaks for Molokai colorscheme (ignored if Molokai isn't used)
-let g:molokai_original=1
-let g:rehash256=1
+" 256 colors in terminal
+set t_Co=256 
 
-" Use the first available colorscheme in this list
-for scheme in [ 'molokai', 'solarized', 'desert' ]
-  try
-    "execute 'colorscheme '.scheme
-    break
-  catch
-    continue
-  endtry
-endfor
+" Set the Colorscheme 
+" colorscheme solarized
+" colorscheme molokai
+colorscheme desert
 
 " Color Overrides
 highlight Normal ctermbg=NONE
@@ -122,3 +86,35 @@ set ruler
 " Leader
 let mapleader = " "
 
+"""""""""""""""""""""""""""""
+" Editing Behavior
+"""""""""""""""""""""""""""""
+
+" Backspace deletes like most programs in insert mode
+set backspace=2   
+set backspace=indent,eol,start
+
+" http://robots.thoughtbot.com/post/18739402579/global-gitignore#comment-458413287
+set noswapfile
+" display incomplete commands
+set showcmd 
+" Always display the status line
+set laststatus=2  
+
+" Show Whitepace Characters
+set list
+set listchars =tab:▸\ ,eol:¬
+set softtabstop=2
+set tabstop=2
+set shiftwidth=2
+set expandtab
+
+" Disable folding
+set nofoldenable
+
+" Search as you type
+set incsearch
+nnoremap <CR> :nohlsearch<CR><CR>
+
+" CtrlP Starts in MRU
+let g:ctrlp_cmd = 'CtrlPMRU'
