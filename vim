@@ -14,8 +14,8 @@ call vundle#begin()
 Plugin 'gmarik/Vundle.vim'
 
 " The Super awesome file manager¬
-Plugin 'scrooloose/nerdtree'
-Plugin 'mileszs/ack.vim'
+" Plugin 'scrooloose/nerdtree'
+" Plugin 'mileszs/ack.vim'
 
 " CtrlP Fuzzzy Find & Most Recently Used
 " Plugin 'Shougo/unite.vim'
@@ -31,8 +31,11 @@ Plugin 'itchyny/lightline.vim'
 Plugin 'godlygeek/tabular'
 Plugin 'plasticboy/vim-markdown'
 
+" Synctastic for awesomeness
+Plugin 'scrooloose/syntastic'
+
 " Nesting sessions with double prefix
-Bundle 'christoomey/vim-tmux-navigator'
+Plugin 'christoomey/vim-tmux-navigator'
 
 " Themes¬
 Plugin 'altercation/vim-colors-solarized'
@@ -115,6 +118,10 @@ set nofoldenable
 " Search as you type
 set incsearch
 nnoremap <CR> :nohlsearch<CR><CR>
+
+" Inserting with newline with 'o' won't result in moving to insert mode
+nmap <S-Enter> O<Esc>j
+nmap <CR> o<Esc>k
 
 " CtrlP Starts in MRU
 let g:ctrlp_cmd = 'CtrlPMRU'
