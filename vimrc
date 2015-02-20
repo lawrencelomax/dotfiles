@@ -73,7 +73,7 @@ let &colorcolumn="80,".join(range(120,999),",")
 """""""""""""""""""""""""""""
 
 " Use Linenumber, Relative
-set relativenumber
+" set relativenumber
 set number
 set numberwidth=3
 
