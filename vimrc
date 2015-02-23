@@ -146,6 +146,7 @@ let g:syntastic_check_on_wq = 0
 
 " Default Per-Language Checkers
 let g:syntastic_haskell_checkers = ['hlint', 'hdevtools']
+let g:syntastic_php_checkers = []
 
 " hdevtools jump to definitions
 au FileType haskell nnoremap <buffer> <F1> :HdevtoolsType<CR>
