@@ -13,10 +13,6 @@ call vundle#begin()
 " Let Vundle manage Vundle, required
 Plugin 'gmarik/Vundle.vim'
 
-" The Super awesome file manager¬
-" Plugin 'scrooloose/nerdtree'
-" Plugin 'mileszs/ack.vim'
-
 " CtrlP Fuzzzy Find & Most Recently Used
 " Plugin 'Shougo/unite.vim'
 Plugin 'kien/ctrlp.vim'
@@ -43,6 +39,9 @@ Plugin 'christoomey/vim-tmux-navigator'
 " Themes¬
 Plugin 'altercation/vim-colors-solarized'
 Plugin 'tomasr/molokai'
+
+" Integrate with Arcanist
+Plugin 'phleet/vim-arcanist'
 
 call vundle#end()            " required
 filetype plugin indent on    " required
