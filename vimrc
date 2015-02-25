@@ -126,7 +126,7 @@ nmap <S-Enter> O<Esc>j
 nmap <CR> o<Esc>k
 
 " CtrlP Starts in MRU
-let g:ctrlp_cmd = 'CtrlPMRU'
+let g:ctrlp_cmd = 'CtrlPMRUFiles'
 
 """""""""""""""""""""""""""""
 " Plugin Configuration
