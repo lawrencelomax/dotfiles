@@ -40,6 +40,9 @@ Plugin 'christoomey/vim-tmux-navigator'
 Plugin 'altercation/vim-colors-solarized'
 Plugin 'tomasr/molokai'
 
+" Integrate with hdevtools
+Plugin 'bitc/vim-hdevtools'
+
 " Integrate with Arcanist
 Plugin 'phleet/vim-arcanist'
 
@@ -145,8 +148,6 @@ let g:syntastic_check_on_wq = 0
 
 " Default Per-Language Checkers
 let g:syntastic_haskell_checkers = ['hlint', 'hdevtools']
-let g:syntastic_php_checkers = []
-let g:syntastic_java_checkers = []
 
 " hdevtools jump to definitions
 au FileType haskell nnoremap <buffer> <F1> :HdevtoolsType<CR>
