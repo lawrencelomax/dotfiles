@@ -10,3 +10,10 @@ source ~/.dotfiles/env_exports
 #else
   antigen theme ys
 #fi
+
+# Enable pyenv
+if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
+
+# Enable rbenv
+if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
+
