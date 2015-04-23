@@ -46,6 +46,9 @@ Plugin 'bitc/vim-hdevtools'
 " Integrate with Arcanist
 Plugin 'phleet/vim-arcanist'
 
+" Indexing incremental search
+Plugin 'henrik/vim-indexed-search'
+
 call vundle#end()            " required
 filetype plugin indent on    " required
 
