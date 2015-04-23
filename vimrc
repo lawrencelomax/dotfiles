@@ -10,17 +10,12 @@ filetype off                  " required
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
-" vimproc is needed for unite.vim mru
-" When using Vundle don't forget to make:
-" cd ~/.vim/bundle/vimproc.vim
-" make
-Plugin 'Shougo/vimproc.vim'
-
 " Let Vundle manage Vundle, required
 Plugin 'gmarik/Vundle.vim'
 
-" Unite.vim all the things
-Plugin 'Shougo/unite.vim'
+" CtrlP Fuzzzy Find & Most Recently Used
+" Plugin 'Shougo/unite.vim'
+Plugin 'kien/ctrlp.vim'
 
 " Zoomwin for Making Splits fullscreen then back
 Plugin 'taylor/vim-zoomwin'
@@ -51,16 +46,12 @@ Plugin 'bitc/vim-hdevtools'
 " Integrate with Arcanist
 Plugin 'phleet/vim-arcanist'
 
-" VCS
-Plugin 'phleet/vim-mercenary'
-
 call vundle#end()            " required
 filetype plugin indent on    " required
 
 """""""""""""""""""""""""""""
 " Themes
 """""""""""""""""""""""""""""
-
 " Enable Syntax Highlighting
 syntax on
 
@@ -137,13 +128,12 @@ nnoremap <CR> :nohlsearch<CR><CR>
 nmap <S-Enter> O<Esc>j
 nmap <CR> o<Esc>k
 
+" CtrlP Starts in MRU
+let g:ctrlp_cmd = 'CtrlPMRUFiles'
+
 """""""""""""""""""""""""""""
 " Plugin Configuration
 """"""""""""""""""""""""""""""
-
-" unite.vim 
-nnoremap <C-p> :Unite file_rec/async<cr>
-
 " Syntastic https://github.com/scrooloose/syntastic
 " Use Syntastic in the Statusline
 set statusline+=%#warningmsg#
