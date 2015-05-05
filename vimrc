@@ -157,5 +157,8 @@ au FileType haskell nnoremap <buffer> <F1> :HdevtoolsType<CR>
 au FileType haskell nnoremap <buffer> <silent> <F2> :HdevtoolsClear<CR>
 au FileType haskell nnoremap <buffer> <silent> <F3> :HdevtoolsInfo<CR>
 
+" python
+let g:syntastic_python_flake8_args='--ignore=E501,E302'
+
 " Tagbar
 let g:tagbar_autofocus = 1
