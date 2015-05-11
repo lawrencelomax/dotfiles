@@ -1,8 +1,7 @@
 """""""""""""""""""""""""""""
 " Vundle
 """""""""""""""""""""""""""""
-
-" Begin Vundle lugins
+" Begin Vundle plugins
 set nocompatible              " be iMproved, required
 filetype off                  " required
 
@@ -46,6 +45,9 @@ Plugin 'bitc/vim-hdevtools'
 " Integrate with Arcanist
 Plugin 'phleet/vim-arcanist'
 
+" Search Dash.app from Vim
+Plugin 'rizzatti/dash.vim'
+
 " Indexing incremental search
 Plugin 'henrik/vim-indexed-search'
 
@@ -74,12 +76,11 @@ highlight ColorColumn ctermbg=23 guibg=#2c2d27
 
 " Set Text Gutter at 80 chars
 let textwidth=80
-let &colorcolumn="80,".join(range(120,999),",")
+set colorcolumn=+1
 
 """""""""""""""""""""""""""""
 " Appearance
 """""""""""""""""""""""""""""
-
 " Use Linenumber, Relative
 " set relativenumber
 set number
@@ -100,7 +101,6 @@ let mapleader = " "
 """""""""""""""""""""""""""""
 " Editing Behavior
 """""""""""""""""""""""""""""
-
 " Backspace deletes like most programs in insert mode
 set backspace=2   
 set backspace=indent,eol,start
@@ -134,8 +134,8 @@ nmap <CR> o<Esc>k
 " CtrlP Starts in MRU
 let g:ctrlp_cmd = 'CtrlPMRUFiles'
 
-"""""""""""""""""""""""""""""
-" Plugin Configuration
+""""""""""""""""""""""""""""""
+" Syntastic
 """"""""""""""""""""""""""""""
 " Syntastic https://github.com/scrooloose/syntastic
 " Use Syntastic in the Statusline
@@ -157,8 +157,11 @@ au FileType haskell nnoremap <buffer> <F1> :HdevtoolsType<CR>
 au FileType haskell nnoremap <buffer> <silent> <F2> :HdevtoolsClear<CR>
 au FileType haskell nnoremap <buffer> <silent> <F3> :HdevtoolsInfo<CR>
 
-" python
+" Python, supress some noisy errors
 let g:syntastic_python_flake8_args='--ignore=E501,E302'
 
+""""""""""""""""""""""""""""""
+" Plugin Configuration
+""""""""""""""""""""""""""""""
 " Tagbar
 let g:tagbar_autofocus = 1
