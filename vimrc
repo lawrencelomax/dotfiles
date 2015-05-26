@@ -109,6 +109,7 @@ let g:syntastic_python_flake8_args='--ignore=E501,E302'
 """"""""""""""""""""""""""""""
 " Tagbar
 let g:tagbar_autofocus = 1
+nmap <C-S-t> :TagbarOpen j<CR>
 
 """""""""""""""""""""""""""""
 " Appearance
