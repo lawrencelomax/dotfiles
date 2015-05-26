@@ -78,6 +78,38 @@ highlight ColorColumn ctermbg=23 guibg=#2c2d27
 let textwidth=80
 set colorcolumn=+1
 
+""""""""""""""""""""""""""""""
+" Syntastic
+""""""""""""""""""""""""""""""
+" Syntastic https://github.com/scrooloose/syntastic
+" Use Syntastic in the Statusline
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+" Options for Syntastic
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+
+" Default Per-Language Checkers
+let g:syntastic_haskell_checkers = ['hlint', 'hdevtools']
+
+" hdevtools jump to definitions
+au FileType haskell nnoremap <buffer> <F1> :HdevtoolsType<CR>
+au FileType haskell nnoremap <buffer> <silent> <F2> :HdevtoolsClear<CR>
+au FileType haskell nnoremap <buffer> <silent> <F3> :HdevtoolsInfo<CR>
+
+" Python, supress some noisy errors
+let g:syntastic_python_flake8_args='--ignore=E501,E302'
+
+""""""""""""""""""""""""""""""
+" Plugin Configuration
+""""""""""""""""""""""""""""""
+" Tagbar
+let g:tagbar_autofocus = 1
+
 """""""""""""""""""""""""""""
 " Appearance
 """""""""""""""""""""""""""""
@@ -133,35 +165,3 @@ nmap <CR> o<Esc>k
 
 " CtrlP Starts in MRU
 let g:ctrlp_cmd = 'CtrlPMRUFiles'
-
-""""""""""""""""""""""""""""""
-" Syntastic
-""""""""""""""""""""""""""""""
-" Syntastic https://github.com/scrooloose/syntastic
-" Use Syntastic in the Statusline
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
-
-" Options for Syntastic
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
-
-" Default Per-Language Checkers
-let g:syntastic_haskell_checkers = ['hlint', 'hdevtools']
-
-" hdevtools jump to definitions
-au FileType haskell nnoremap <buffer> <F1> :HdevtoolsType<CR>
-au FileType haskell nnoremap <buffer> <silent> <F2> :HdevtoolsClear<CR>
-au FileType haskell nnoremap <buffer> <silent> <F3> :HdevtoolsInfo<CR>
-
-" Python, supress some noisy errors
-let g:syntastic_python_flake8_args='--ignore=E501,E302'
-
-""""""""""""""""""""""""""""""
-" Plugin Configuration
-""""""""""""""""""""""""""""""
-" Tagbar
-let g:tagbar_autofocus = 1

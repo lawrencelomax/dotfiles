@@ -19,3 +19,4 @@ bindkey '\C-x\C-e' edit-command-line
 # Aliases
 # jsonpretty will pretty print json stdin
 alias jsonpretty='python -m json.tool'
+alias tmux_to_pasteboard='tmux showb | pbcopy'
