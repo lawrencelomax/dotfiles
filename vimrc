@@ -97,6 +97,7 @@ let g:syntastic_aggregate_errors = 1
 
 " Default Per-Language Checkers
 let g:syntastic_haskell_checkers = ['hlint', 'hdevtools']
+let g:syntastic_python_checkers = ['python', 'flake8', 'pyflakes']
 
 " hdevtools jump to definitions
 au FileType haskell nnoremap <buffer> <F1> :HdevtoolsType<CR>
