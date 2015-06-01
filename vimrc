@@ -114,6 +114,9 @@ let g:syntastic_python_flake8_args='--ignore=E501,E302'
 let g:tagbar_autofocus = 1
 nmap <C-S-t> :TagbarOpen j<CR>
 
+" CtrlP Starts in MRU
+let g:ctrlp_cmd = 'CtrlPMRUFiles'
+
 """""""""""""""""""""""""""""
 " Appearance
 """""""""""""""""""""""""""""
@@ -167,5 +170,5 @@ nnoremap <CR> :nohlsearch<CR><CR>
 nmap <S-Enter> O<Esc>j
 nmap <CR> o<Esc>k
 
-" CtrlP Starts in MRU
-let g:ctrlp_cmd = 'CtrlPMRUFiles'
+" Word wrap on soft line wrap
+set linebreak
