@@ -106,6 +106,7 @@ au FileType haskell nnoremap <buffer> <silent> <F3> :HdevtoolsInfo<CR>
 
 " Python, supress some noisy errors
 let g:syntastic_python_flake8_args='--ignore=E501,E302'
+let g:syntastic_python_pep8_args='--ignore=E501,E302'
 
 """"""""""""""""""""""""""""""
 " Plugin Configuration
