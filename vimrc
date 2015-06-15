@@ -117,6 +117,9 @@ nmap <C-S-t> :TagbarOpen j<CR>
 
 " CtrlP Starts in MRU
 let g:ctrlp_cmd = 'CtrlPMRUFiles'
+let g:ctrlp_custom_ignore = {
+  \ 'dir':  '\v[\/]\.(git|hg|svn)$',
+  \ 'file': '\v\.(exe|so|dll)$' }
 
 """""""""""""""""""""""""""""
 " Appearance

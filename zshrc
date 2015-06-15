@@ -1,3 +1,6 @@
+###################
+# Sourcing
+###################
 # Source Antigen
 source ~/.dotfiles/antigen
 
@@ -11,12 +14,25 @@ else
   antigen theme ys
 fi
 
+###################
+# Configuration
+###################
 # Enable $EDITOR Command Line Editing With C-x-e
 autoload -U edit-command-line
 zle -N edit-command-line
 bindkey '\C-x\C-e' edit-command-line
 
-# Aliases
+###################
+# Aliasing
+###################
 # jsonpretty will pretty print json stdin
 alias jsonpretty='python -m json.tool'
 alias tmux_to_pasteboard='tmux showb | pbcopy'
+
+# xcode-simctl stuff
+alias simlist='xcrun simctl list'
+alias xcode-beta='sudo xcode-select -s /Applications/Xcode-beta.app/'
+alias xcode-prod='sudo xcode-select -s /Applications/xcode_6.3.app/'
+
+# Show exit code
+RPROMPT='[%?]'
