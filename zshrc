@@ -34,5 +34,10 @@ alias simlist='xcrun simctl list'
 alias xcode-beta='sudo xcode-select -s /Applications/Xcode-beta.app/'
 alias xcode-prod='sudo xcode-select -s /Applications/xcode_6.3.app/'
 
+# mercurial 
+alias hu='hg update -r '
+alias hum='hg update master'
+alias hus='hg update stable'
+
 # Show exit code
 RPROMPT='[%?]'
