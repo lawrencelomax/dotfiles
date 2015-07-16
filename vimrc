@@ -26,7 +26,7 @@ Plugin 'itchyny/lightline.vim'
 Plugin 'godlygeek/tabular'
 Plugin 'plasticboy/vim-markdown'
 
-" Synctastic for awesomeness
+" Syntastic for syntax checking
 Plugin 'scrooloose/syntastic'
 
 " Tagbar
@@ -48,8 +48,11 @@ Plugin 'phleet/vim-arcanist'
 " Search Dash.app from Vim
 Plugin 'rizzatti/dash.vim'
 
-" Indexing incremental search
+" Indexed incremental search
 Plugin 'henrik/vim-indexed-search'
+
+" Fuzzy Completion
+Plugin 'Valloric/YouCompleteMe'
 
 call vundle#end()            " required
 filetype plugin indent on    " required
