@@ -12,6 +12,10 @@ call vundle#begin()
 " Let Vundle manage Vundle, required
 Plugin 'gmarik/Vundle.vim'
 
+" Themes¬
+Plugin 'altercation/vim-colors-solarized'
+Plugin 'tomasr/molokai'
+
 " CtrlP Fuzzzy Find & Most Recently Used
 " Plugin 'Shougo/unite.vim'
 Plugin 'kien/ctrlp.vim'
@@ -32,12 +36,12 @@ Plugin 'scrooloose/syntastic'
 " Tagbar
 Plugin 'majutsushi/tagbar'
 
+" Automatic ctag generation
+Plugin 'xolox/vim-easytags'
+Plugin 'xolox/vim-misc'
+
 " Nesting sessions with double prefix
 Plugin 'christoomey/vim-tmux-navigator'
-
-" Themes¬
-Plugin 'altercation/vim-colors-solarized'
-Plugin 'tomasr/molokai'
 
 " Integrate with hdevtools
 Plugin 'bitc/vim-hdevtools'
@@ -114,9 +118,17 @@ let g:syntastic_python_pep8_args='--ignore=E501,E302'
 """"""""""""""""""""""""""""""
 " Plugin Configuration
 """"""""""""""""""""""""""""""
-" Tagbar
+" Focus on the Tagbar
 let g:tagbar_autofocus = 1
-nmap <C-S-t> :TagbarOpen j<CR>
+
+" Opens the CtrlP Tag Searcher
+" Alt+t is all buffers
+" Alt+T is the current buffer
+nmap <silent> † :CtrlPTag<CR>
+nmap <silent> ˇ :CtrlPBufTag<CR>
+
+" Open the TagBar with Ctrl-shift-t
+nmap <silent> <C-S-t> :TagbarToggle<CR>
 
 " CtrlP Starts in MRU
 let g:ctrlp_cmd = 'CtrlPMRUFiles'

@@ -7,13 +7,6 @@ source ~/.dotfiles/antigen
 # Source Environment Exports
 source ~/.dotfiles/env_exports
 
-# Source Powerline
-if [[ "$POWERLINE_ENABLED" == "1" ]]; then
-  source ~/.powerline/bindings/zsh/powerline.zsh
-else
-  antigen theme ys
-fi
-
 ###################
 # Configuration
 ###################
@@ -21,6 +14,12 @@ fi
 autoload -U edit-command-line
 zle -N edit-command-line
 bindkey '\C-x\C-e' edit-command-line
+
+# Disable VCS Info at prompt, it's slow
+zstyle ':vcs_info:*' disable bzr cdv darcs mtn svk tla hg git
+
+# Disable Mercurial Prompt info
+LP_ENABLE_HG=0
 
 ###################
 # Aliasing
@@ -40,4 +39,4 @@ alias hum='hg update master'
 alias hus='hg update stable'
 
 # Show exit code
-RPROMPT='[%?]'
+#RPROMPT='[%?]'
