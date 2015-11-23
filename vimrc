@@ -20,6 +20,9 @@ Plugin 'tomasr/molokai'
 " Plugin 'Shougo/unite.vim'
 Plugin 'kien/ctrlp.vim'
 
+" Silver Surfer Commands
+Plugin 'rking/ag.vim'
+
 " Zoomwin for Making Splits fullscreen then back
 Plugin 'taylor/vim-zoomwin'
 
@@ -57,6 +60,9 @@ Plugin 'henrik/vim-indexed-search'
 
 " Fuzzy Completion
 Plugin 'Valloric/YouCompleteMe'
+
+" Flow typechecker
+Plugin 'facebook/vim-flow'
 
 call vundle#end()            " required
 filetype plugin indent on    " required
@@ -101,6 +107,9 @@ let g:syntastic_auto_loc_list = 1
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 let g:syntastic_aggregate_errors = 1
+
+" Additional matching of FileTypes
+au BufRead,BufNewFile *.include set ft=sh
 
 " Default Per-Language Checkers
 let g:syntastic_haskell_checkers = ['hlint', 'hdevtools']
@@ -191,3 +200,6 @@ nmap <CR> o<Esc>k
 
 " Word wrap on soft line wrap
 set linebreak
+
+" Add the Visual autocomplete menu for the Vim Command Line
+set wildmenu
