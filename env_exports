@@ -4,5 +4,8 @@ export EDITOR='vim'
 # tmux needs screen-256 color for ncurses to not get corrupted
 export TERM=screen-256color
 
-# extra PATH for other languages
+# extra PATH for the user-local install directories of some package managers
 export PATH=$PATH:$HOME/.cabal/bin:$HOME/.rbenv/bin
+
+# For Homebrew
+export PATH=/usr/local/bin:/usr/local/sbin:$PATH
