@@ -17,7 +17,6 @@ Plugin 'altercation/vim-colors-solarized'
 Plugin 'tomasr/molokai'
 
 " CtrlP Fuzzzy Find & Most Recently Used
-" Plugin 'Shougo/unite.vim'
 Plugin 'kien/ctrlp.vim'
 
 " Silver Surfer Commands
@@ -29,10 +28,6 @@ Plugin 'taylor/vim-zoomwin'
 " The Nice line at the bottom of the screen¬
 Plugin 'itchyny/lightline.vim'
 
-" Markdown Vim Mode
-Plugin 'godlygeek/tabular'
-Plugin 'plasticboy/vim-markdown'
-
 " Syntastic for syntax checking
 Plugin 'scrooloose/syntastic'
 
@@ -43,17 +38,8 @@ Plugin 'majutsushi/tagbar'
 Plugin 'xolox/vim-easytags'
 Plugin 'xolox/vim-misc'
 
-" Nesting sessions with double prefix
-Plugin 'christoomey/vim-tmux-navigator'
-
-" Integrate with hdevtools
-Plugin 'bitc/vim-hdevtools'
-
 " Integrate with Arcanist
 Plugin 'phleet/vim-arcanist'
-
-" Search Dash.app from Vim
-Plugin 'rizzatti/dash.vim'
 
 " Indexed incremental search
 Plugin 'henrik/vim-indexed-search'
