@@ -51,3 +51,5 @@ alias hu='hg update -r '
 alias hum='hg update master'
 alias hus='hg update stable'
 
+# git
+alias gitpruneall="git checkout master && git branch -l | sed 's/* master//' > /tmp/gitlocal.txt && git branch -r  | sed 's/origin\///' > /tmp/gitremote.txt && grep -Fxv -f /tmp/gitremote.txt /tmp/gitlocal.txt | xargs git branch -d"
