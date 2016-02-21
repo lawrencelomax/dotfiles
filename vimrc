@@ -29,6 +29,8 @@ Plugin 'taylor/vim-zoomwin'
 Plugin 'itchyny/lightline.vim'
 
 " Syntastic for syntax checking
+" Don't forget to run:
+" ~/.vim/bundle/YouCompleteMe/install.py --clang-completer
 Plugin 'scrooloose/syntastic'
 
 " Tagbar
