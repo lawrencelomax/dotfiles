@@ -12,10 +12,6 @@ call vundle#begin()
 " Let Vundle manage Vundle, required
 Plugin 'gmarik/Vundle.vim'
 
-" Themes¬
-Plugin 'altercation/vim-colors-solarized'
-Plugin 'tomasr/molokai'
-
 " CtrlP Fuzzzy Find & Most Recently Used
 Plugin 'kien/ctrlp.vim'
 
@@ -46,7 +42,7 @@ Plugin 'phleet/vim-arcanist'
 " Indexed incremental search
 Plugin 'henrik/vim-indexed-search'
 
-" Fuzzy Completion
+" Fast Semantic Completion
 Plugin 'Valloric/YouCompleteMe'
 
 " Flow typechecker
@@ -63,11 +59,6 @@ syntax on
 
 " 256 colors in terminal
 set t_Co=256 
-
-" Set the Colorscheme 
-" colorscheme solarized
-" colorscheme molokai
-colorscheme desert
 
 " Color Overrides
 highlight Normal ctermbg=NONE
@@ -102,6 +93,7 @@ au BufRead,BufNewFile *.include set ft=sh
 " Default Per-Language Checkers
 let g:syntastic_haskell_checkers = ['hlint', 'hdevtools']
 let g:syntastic_python_checkers = ['python', 'flake8', 'pyflakes']
+let g:syntastic_php_checkers = []
 
 " hdevtools jump to definitions
 au FileType haskell nnoremap <buffer> <F1> :HdevtoolsType<CR>
@@ -111,6 +103,20 @@ au FileType haskell nnoremap <buffer> <silent> <F3> :HdevtoolsInfo<CR>
 " Python, supress some noisy errors
 let g:syntastic_python_flake8_args='--ignore=E501,E302'
 let g:syntastic_python_pep8_args='--ignore=E501,E302'
+
+""""""""""""""""""""""""""""""
+" YouCompleteMe
+""""""""""""""""""""""""""""""
+" YouCompleteMe https://github.com/Valloric/YouComplete
+" Don't complete until there are at least a few chars
+let g:ycm_min_num_of_chars_for_completion = 3
+
+" Disable automatic triggering, use <C-Space> to manually trigger
+let g:ycm_auto_trigger = 3
+let g:ycm_key_invoke_completion = '<C-Space>'
+
+" Accept Completion with Enter as well
+let g:ycm_key_list_select_completion = ['<Enter>', '<TAB>', '<Down>']
 
 """"""""""""""""""""""""""""""
 " Plugin Configuration
