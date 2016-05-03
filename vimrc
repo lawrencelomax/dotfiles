@@ -32,10 +32,6 @@ Plugin 'scrooloose/syntastic'
 " Tagbar
 Plugin 'majutsushi/tagbar'
 
-" Automatic ctag generation
-Plugin 'xolox/vim-easytags'
-Plugin 'xolox/vim-misc'
-
 " Integrate with Arcanist
 Plugin 'phleet/vim-arcanist'
 
@@ -56,6 +52,9 @@ filetype plugin indent on    " required
 """""""""""""""""""""""""""""
 " Enable Syntax Highlighting
 syntax on
+
+" Set theme
+colorscheme desert
 
 " 256 colors in terminal
 set t_Co=256 
