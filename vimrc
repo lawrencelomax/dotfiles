@@ -115,7 +115,7 @@ let g:ycm_auto_trigger = 3
 let g:ycm_key_invoke_completion = '<C-Space>'
 
 " Accept Completion with Enter as well
-let g:ycm_key_list_select_completion = ['<Enter>', '<TAB>', '<Down>']
+let g:ycm_key_list_select_completion = ['<TAB>', '<Down>']
 
 """"""""""""""""""""""""""""""
 " Plugin Configuration
