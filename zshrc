@@ -43,6 +43,7 @@ alias tmux_to_pasteboard='tmux showb | pbcopy'
 
 # xcode-simctl stuff
 alias simlist='xcrun simctl list'
+alias simrecord='fbsimctl --debug-logging record start -- listen -- record stop > /dev/null && fbsimctl --state=booted diagnose | grep video | awk '\''{print $NF}'\'''
 alias xcode-beta='sudo xcode-select -s /Applications/xcode7_beta6.app/Contents/Developer'
 alias xcode-prod='sudo xcode-select -s /Applications/xcode_6.3.app/Contents/Developer'
 
