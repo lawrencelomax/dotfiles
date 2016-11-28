@@ -51,7 +51,8 @@ alias xcode-prod='sudo xcode-select -s /Applications/xcode_6.3.app/Contents/Deve
 alias hu='hg update -r '
 alias hum='hg update master'
 alias hus='hg update stable'
-alias hg-pick-prev='hgd -c . --stat | fpp -c "hg revert -r .^"'
+alias hg-pick-prev='hgd -c . --stat | fpp -nfc -c "hg revert -r .^"'
+function hg-pick-rev() { hgd -c $1 --stat | fpp -nfc -c "hg revert -r $1" }
 
 # word manipulation
 alias firstword='cut -f 1 -d " "'
