@@ -5,7 +5,7 @@ export EDITOR='vim'
 export TERM=screen-256color
 
 # extra PATH for the user-local install directories of some package managers
-export PATH=$PATH:$HOME/.cabal/bin:$HOME/.rbenv/bin:$HOME/bin
+export PATH=$PATH:$HOME/.cabal/bin:$HOME/.rbenv/bin:$HOME/bin:$HOME/.cargo/bin
 
 # For Homebrew
 export PATH=/usr/local/bin:/usr/local/sbin:$PATH
