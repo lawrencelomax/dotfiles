@@ -7,6 +7,9 @@ source ~/.dotfiles/antigen
 # Source Environment Exports
 source ~/.dotfiles/env_exports
 
+# Source Autojump if it exists
+[ -f /usr/local/etc/profile.d/autojump.sh ] && . /usr/local/etc/profile.d/autojump.sh
+
 ###################
 # Configuration
 ###################
