@@ -91,7 +91,7 @@ au BufRead,BufNewFile *.include set ft=sh
 
 " Default Per-Language Checkers
 let g:syntastic_haskell_checkers = ['hlint', 'hdevtools']
-let g:syntastic_python_checkers = ['python', 'flake8', 'pyflakes']
+let g:syntastic_python_checkers = ['python', 'flake8', 'pyflakes', 'mypy']
 let g:syntastic_php_checkers = []
 
 " hdevtools jump to definitions
