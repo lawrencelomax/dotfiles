@@ -63,3 +63,6 @@ alias firstword='cut -f 1 -d " "'
 
 # git
 alias gitpruneall="git checkout master && git branch -l | sed 's/* master//' > /tmp/gitlocal.txt && git branch -r  | sed 's/origin\///' > /tmp/gitremote.txt && grep -Fxv -f /tmp/gitremote.txt /tmp/gitlocal.txt | xargs git branch -d"
+
+# helpers
+alias unixtime='date +%s'
