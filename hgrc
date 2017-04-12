@@ -1,0 +1,13 @@
+[alias]
+upsl = up 'heads(descendants(.))'
+
+[merge-tools]
+vimdiff.executable = vim
+vimdiff.args = -d $base $local $output $other +close +close
+
+[extdiff]
+cmd.vimdiff = vimdiff
+
+[pager]
+attend-sl = false
+attend-ssl = false
