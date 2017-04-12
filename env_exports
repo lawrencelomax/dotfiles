@@ -9,3 +9,6 @@ export PATH=$PATH:$HOME/.cabal/bin:$HOME/.rbenv/bin:$HOME/bin:$HOME/.cargo/bin
 
 # For Homebrew
 export PATH=/usr/local/bin:/usr/local/sbin:$PATH
+
+# Stops Mercurial Paging Unecessarily
+LESS=FRKX
