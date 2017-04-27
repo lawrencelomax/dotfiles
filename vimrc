@@ -26,7 +26,6 @@ Plugin 'itchyny/lightline.vim'
 
 " Syntastic for syntax checking
 " Don't forget to run:
-" ~/.vim/bundle/YouCompleteMe/install.py --clang-completer
 Plugin 'scrooloose/syntastic'
 
 " Tagbar
@@ -39,10 +38,8 @@ Plugin 'phleet/vim-arcanist'
 Plugin 'henrik/vim-indexed-search'
 
 " Fast Semantic Completion
+" ~/.vim/bundle/YouCompleteMe/install.py --clang-completer
 Plugin 'Valloric/YouCompleteMe'
-
-" Flow typechecker
-Plugin 'facebook/vim-flow'
 
 call vundle#end()            " required
 filetype plugin indent on    " required
