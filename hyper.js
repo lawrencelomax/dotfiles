@@ -10,7 +10,7 @@ module.exports = {
     cursorColor: 'rgba(248,28,229,0.8)',
 
     // blink the cursor
-    cursorBlink: true,
+    cursorBlink: false,
 
     // `BEAM` for |, `UNDERLINE` for _, `BLOCK` for █
     cursorShape: 'BLOCK',
@@ -100,7 +100,7 @@ module.exports = {
   //   `hyperpower`
   //   `@company/project`
   //   `project#1.0.1`
-  plugins: [],
+  plugins: ['hyper-seti-monokai'],
 
   // in development, you can create a directory under
   // `~/.hyper_plugins/local/` and include it here
