@@ -155,6 +155,9 @@ set ruler
 " Leader
 let mapleader = " "
 
+" Increasing Drawing Performance
+set ttyfast
+
 """""""""""""""""""""""""""""
 " Editing Behavior
 """""""""""""""""""""""""""""
