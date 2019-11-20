@@ -63,8 +63,9 @@ highlight Folded  guibg=#0A0A0A guifg=#9090D0
 highlight ColorColumn ctermbg=23 guibg=#2c2d27
 
 " Set Text Gutter at 80 chars
-let textwidth=80
+set textwidth=80
 set colorcolumn=+1
+set formatoptions-=t
 
 """"""""""""""""""""""""""""""
 " Syntastic
