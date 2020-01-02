@@ -18,6 +18,9 @@ autoload -U edit-command-line
 zle -N edit-command-line
 bindkey '\C-x\C-e' edit-command-line
 
+# Prevent Auto Title
+export DISABLE_AUTO_TITLE="true"
+
 ###################
 # Theming
 ###################
