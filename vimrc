@@ -16,7 +16,7 @@ Plugin 'gmarik/Vundle.vim'
 Plugin 'kien/ctrlp.vim'
 
 " Silver Surfer Commands
-Plugin 'rking/ag.vim'
+Plugin 'jremmen/vim-ripgrep'
 
 " Zoomwin for Making Splits fullscreen then back
 Plugin 'taylor/vim-zoomwin'
@@ -26,7 +26,8 @@ Plugin 'itchyny/lightline.vim'
 
 " Syntastic for syntax checking
 " Don't forget to run:
-Plugin 'scrooloose/syntastic'
+" Plugin 'scrooloose/syntastic'
+Plugin 'w0rp/ale'
 
 " Tagbar
 Plugin 'majutsushi/tagbar'
@@ -91,7 +92,7 @@ au BufRead,BufNewFile *.include set ft=sh
 
 " Default Per-Language Checkers
 let g:syntastic_haskell_checkers = ['hlint', 'hdevtools']
-let g:syntastic_python_checkers = ['python', 'flake8', 'mypy']
+let g:syntastic_python_checkers = ['flake8', 'mypy']
 let g:syntastic_php_checkers = []
 
 " hdevtools jump to definitions
