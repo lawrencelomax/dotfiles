@@ -65,6 +65,8 @@ highlight ColorColumn ctermbg=23 guibg=#2c2d27
 " Set Text Gutter at 80 chars
 set textwidth=80
 set colorcolumn=+1
+" Long lines are not broken in INSERT mode
+set formatoptions+=l
 set formatoptions-=t
 
 """"""""""""""""""""""""""""""
