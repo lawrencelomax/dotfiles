@@ -13,6 +13,7 @@ source ~/.dotfiles/env_exports
 ###################
 # Configuration
 ###################
+
 # Enable $EDITOR Command Line Editing With C-x-e
 autoload -U edit-command-line
 zle -N edit-command-line
@@ -28,8 +29,10 @@ export DISABLE_AUTO_TITLE="true"
 # Disable VCS Info at prompt, it's slow
 zstyle ':vcs_info:*' disable bzr cdv darcs mtn svk tla hg git
 
-# Disable Mercurial Prompt info
+# LiquidPrompt: Disable Mercurial Prompt info
 LP_ENABLE_HG=0
+# LiquidPrompt: Disable Battery
+LP_ENABLE_BATT=0
 
 # Coloring with less
 export LESS_TERMCAP_mb=$'\E[01;31m'       # begin blinking
