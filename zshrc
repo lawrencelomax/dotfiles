@@ -1,4 +1,12 @@
 ###################
+# LiquidPrompt
+###################
+# Disable Mercurial
+export LP_ENABLE_HG=0
+# Disable Battery
+export LP_ENABLE_BATT=0
+
+###################
 # Sourcing
 ###################
 # Source Antigen
@@ -29,10 +37,6 @@ export DISABLE_AUTO_TITLE="true"
 # Disable VCS Info at prompt, it's slow
 zstyle ':vcs_info:*' disable bzr cdv darcs mtn svk tla hg git
 
-# LiquidPrompt: Disable Mercurial Prompt info
-LP_ENABLE_HG=0
-# LiquidPrompt: Disable Battery
-LP_ENABLE_BATT=0
 
 # Coloring with less
 export LESS_TERMCAP_mb=$'\E[01;31m'       # begin blinking
