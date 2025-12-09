@@ -65,6 +65,30 @@ function hg-changes() { hg diff -c $1 --stat }
 function hg-pick-rev() { hg-changes $1 | fpp -nfc -c "hg revert -r $1" }
 alias hg-pick-prev='hg-pick-rev .'
 
+# sapling - open changes in editor
+sle() {
+  local -a files
+  files=( ${(f)"$(sl status --no-status 2>/dev/null)"} )
+  if (( ${#files} )); then
+    $EDITOR $files
+  else
+    echo "No uncommitted changes"
+  fi
+}
+
+slec() {
+  local -a files
+  files=( ${(f)"$(sl status --no-status --change . 2>/dev/null)"} )
+  if (( ${#files} )); then
+    $EDITOR $files
+  else
+    echo "No changes in current commit"
+  fi
+}
+
+# codemods
+alias remove_unused_imports='$(hg root)/fbcode/python/libcst/libcst codemod remove_unused_imports.RemoveUnusedImportsWithGlean'
+
 # word manipulation
 alias firstword='cut -f 1 -d " "'
 
