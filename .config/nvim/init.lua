@@ -85,6 +85,18 @@ local plugins = {
   },
 }
 
+-- Load local/machine-specific plugins if they exist
+-- This file is gitignored and can contain work-specific plugins
+local local_plugins_path = vim.fn.stdpath("config") .. "/lua/local/plugins.lua"
+if vim.fn.filereadable(local_plugins_path) == 1 then
+  local local_plugins = require("local.plugins")
+  if local_plugins then
+    for _, plugin in ipairs(local_plugins) do
+      table.insert(plugins, plugin)
+    end
+  end
+end
+
 -- Setup lazy.nvim
 require("lazy").setup(plugins, {
   -- UI for plugin management
