@@ -42,6 +42,10 @@ set cursorline
 " Show cursor position (line, column) in status bar
 set ruler
 
+" Don't show mode indicator (-- INSERT --, -- VISUAL --, etc.) on command line
+" Statusline plugins like lualine already show the mode
+set noshowmode
+
 " Set leader key to spacebar
 " Leader key is prefix for custom keybindings (e.g., <leader>w for custom command)
 let mapleader = " "
