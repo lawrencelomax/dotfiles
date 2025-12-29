@@ -43,6 +43,23 @@ vim.opt.rtp:prepend(lazypath)
 
 -- Plugin specifications
 local plugins = {
+  -- Which-key: shows available keybindings after pressing leader
+  {
+    'folke/which-key.nvim',
+    event = 'VeryLazy',
+    config = function()
+      local wk = require('which-key')
+      wk.setup({
+        delay = 200,  -- Show popup after 200ms
+      })
+      -- Command to adjust delay on the fly: :WhichKeyDelay 500
+      vim.api.nvim_create_user_command('WhichKeyDelay', function(opts)
+        wk.setup({ delay = tonumber(opts.args) })
+        print('which-key delay set to ' .. opts.args .. 'ms')
+      end, { nargs = 1 })
+    end,
+  },
+
   -- Telescope fuzzy finder
   {
     'nvim-telescope/telescope.nvim',
