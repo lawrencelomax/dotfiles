@@ -4,7 +4,11 @@ export EDITOR='vim'
 # tmux needs screen-256 color for ncurses to not get corrupted
 export TERM=screen-256color
 
-# extra PATH for the user-local install directories of some package managers
+# User-local install directories for package managers:
+# - $HOME/.cabal/bin: Haskell Cabal package manager binaries
+# - $HOME/.rbenv/bin: Ruby version manager (rbenv) binaries
+# - $HOME/bin: Personal scripts and binaries
+# - $HOME/.cargo/bin: Rust Cargo package manager binaries
 export PATH=$PATH:$HOME/.cabal/bin:$HOME/.rbenv/bin:$HOME/bin:$HOME/.cargo/bin
 
 # For Homebrew
