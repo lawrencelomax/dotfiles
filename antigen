@@ -1,19 +1,64 @@
-# Source Antigen to load bundles
+# Antigen - Zsh Plugin Manager Configuration
+# Antigen manages zsh plugins similar to how Vundle manages vim plugins
+# Plugins are loaded lazily for better shell startup performance
+
+# Source Antigen plugin manager from ~/.antigen/
+# Install with: git clone https://github.com/zsh-users/antigen.git ~/.antigen
 source ~/.antigen/antigen.zsh
 
-# Load the oh-my-zsh's library.
+# Load oh-my-zsh framework as base
+# Provides common shell functions, completions, and utilities
 antigen use oh-my-zsh
 
-# Bundles from the default repo (robbyrussell's oh-my-zsh).
+# Zsh Bundles (Plugins)
+# All bundles from oh-my-zsh repository unless specified otherwise
+
+# history - Enhanced shell command history management
+# Provides better history searching, deduplication, and persistence
 antigen bundle history
+
+# history-substring-search - Search command history with up/down arrows
+# Press up/down after typing partial command to search matching history
+# Example: Type "git" then up arrow shows previous git commands
 antigen bundle history-substring-search
+
+# command-not-found - Suggest package installations for missing commands
+# When you type a command that doesn't exist, suggests how to install it
+# Example: "htop" not found → suggests "brew install htop"
 antigen bundle command-not-found
+
+# git - Git aliases and enhanced completion
+# Provides shortcuts like 'gst' (git status), 'gco' (git checkout), etc.
+# Includes smart tab completion for branches, remotes, and files
 antigen bundle git
+
+# mercurial - Mercurial (hg) integration
+# Provides hg command completion and status in prompt
 antigen bundle mercurial
+
+# vundle - Vim Vundle plugin manager integration
+# Provides shell completion for Vundle vim plugin commands
 antigen bundle vundle
+
+# zsh-syntax-highlighting - Real-time syntax highlighting in shell
+# Colors commands green (valid) or red (invalid) as you type
+# Highlights strings, variables, paths, and more
+# Repo: https://github.com/zsh-users/zsh-syntax-highlighting
 antigen bundle zsh-users/zsh-syntax-highlighting
+
+# zsh-autosuggestions - Fish-like autosuggestions
+# Suggests commands from history as you type (shown in gray)
+# Press right arrow to accept suggestion
+# Repo: https://github.com/tarruda/zsh-autosuggestions
 antigen bundle tarruda/zsh-autosuggestions
+
+# liquidprompt - Informative and adaptive shell prompt
+# Shows git/hg status, python virtualenv, battery level, load average, etc.
+# Adapts to show relevant info based on current directory context
+# Repo: https://github.com/nojhan/liquidprompt
 antigen bundle nojhan/liquidprompt
 
-# Tell antigen that you're done.
+# Apply all bundle configurations and activate plugins
+# This must be called after all bundle declarations
+# Generates plugin cache for faster subsequent shell startups
 antigen apply
