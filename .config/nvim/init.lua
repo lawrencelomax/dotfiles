@@ -46,7 +46,7 @@ local plugins = {
   -- Telescope fuzzy finder
   {
     'nvim-telescope/telescope.nvim',
-    tag = '0.1.8',
+    branch = 'master',
     dependencies = { 'nvim-lua/plenary.nvim' },
     config = function()
       local telescope = require('telescope')
