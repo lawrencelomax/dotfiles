@@ -11,7 +11,9 @@ export TERM=screen-256color
 # - $HOME/.cargo/bin: Rust Cargo package manager binaries
 export PATH=$PATH:$HOME/.cabal/bin:$HOME/.rbenv/bin:$HOME/bin:$HOME/.cargo/bin
 
-# For Homebrew
+# Homebrew package manager paths (prepended to take precedence over system binaries)
+# - /opt/homebrew/bin: Homebrew binaries (Apple Silicon location, /usr/local/bin on Intel)
+# - /opt/homebrew/sbin: Homebrew system binaries
 export PATH=/opt/homebrew/bin:/opt/homebrew/sbin:$PATH
 
 # Stops Mercurial Paging Unecessarily
