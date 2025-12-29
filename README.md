@@ -83,6 +83,9 @@ cd ~/.dotfiles
 Create symlinks for the configurations you want:
 
 ```bash
+# Clone Antigen (required for zsh)
+git clone https://github.com/zsh-users/antigen.git ~/.antigen
+
 # Zsh shell
 ln -s ~/.dotfiles/zshrc ~/.zshrc
 
