@@ -8,7 +8,7 @@ export TERM=screen-256color
 export PATH=$PATH:$HOME/.cabal/bin:$HOME/.rbenv/bin:$HOME/bin:$HOME/.cargo/bin
 
 # For Homebrew
-export PATH=/usr/local/bin:/usr/local/sbin:$PATH
+export PATH=/opt/homebrew/bin:/opt/homebrew/sbin:$PATH
 
 # Stops Mercurial Paging Unecessarily
 LESS=FRKX
