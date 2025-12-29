@@ -222,6 +222,13 @@ main() {
         "Neovim Configuration" \
         "Modern nvim with lazy.nvim, Telescope fuzzy finder, and Ghostty terminal colors"
 
+    # Powerline configuration
+    setup_component \
+        "$DOTFILES_DIR/.config/powerline" \
+        "$HOME/.config/powerline" \
+        "Powerline Configuration" \
+        "Powerline prompt theme and colors"
+
     # Tmux configuration
     setup_component \
         "$DOTFILES_DIR/tmux.conf" \

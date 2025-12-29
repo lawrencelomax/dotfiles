@@ -34,7 +34,7 @@ This repository contains a minimal, well-organized dotfiles setup with:
 ```
 ~/.dotfiles/
 ├── README.md              # This file
-├── setup.sh               # Interactive setup script (coming soon)
+├── setup.sh               # Interactive setup script
 ├── .gitignore             # Ignore compiled files and plugin lockfiles
 │
 ├── zshrc                  # Zsh configuration entry point
@@ -45,16 +45,43 @@ This repository contains a minimal, well-organized dotfiles setup with:
 ├── vim-plugins.vim        # Vim-only plugins and colorscheme (130+ lines)
 ├── vimrc                  # Vim entry point (sources shared + plugins)
 │
-├── .config/
-│   └── nvim/
-│       ├── init.lua       # Nvim entry point (95 lines)
-│       └── README.md      # Nvim-specific documentation
+├── .config/               # XDG config (individual items symlinked to ~/.config/)
+│   ├── nvim/
+│   │   ├── init.lua       # Nvim entry point (95 lines)
+│   │   └── README.md      # Nvim-specific documentation
+│   └── powerline/         # Powerline prompt theme and colors
 │
 ├── tmux.conf              # Tmux configuration
 ├── ghci                   # GHCi (Haskell REPL) configuration
 ├── hgrc                   # Mercurial configuration
 ├── hyper.js               # Hyper terminal configuration
 └── colors.sh              # Terminal color definitions
+```
+
+### XDG Config Directory Approach
+
+> **XDG** = X Desktop Group (now freedesktop.org). The XDG Base Directory Specification defines `~/.config` as the standard location for user configuration files, replacing scattered dotfiles in `~/`.
+
+**Important:** `~/.config` is intentionally **not** symlinked to this repository. Only individual configuration directories within it are symlinked.
+
+**Why not symlink all of ~/.config?**
+
+Many applications store machine-specific or sensitive data in `~/.config/`:
+- **Secrets and tokens** - OAuth tokens, API keys, authentication credentials
+- **Machine-specific settings** - Hardware-dependent configs, local paths
+- **Caches and state** - Plugin lockfiles, update timestamps, session data
+- **Work-specific configs** - Corporate tools, internal systems
+
+This dotfiles repository is designed for **portable configuration that works across machines**. By symlinking only specific directories (nvim, powerline), we:
+1. Keep secrets out of version control
+2. Avoid conflicts between machines with different setups
+3. Let applications manage their own local state
+
+```
+~/.config/                          # Real directory (NOT a symlink)
+├── nvim -> ~/.dotfiles/.config/nvim       # Symlink (tracked, portable)
+├── powerline -> ~/.dotfiles/.config/powerline  # Symlink (tracked, portable)
+└── ...other app configs...         # Local only (machine-specific or secrets)
 ```
 
 ## Installation
@@ -92,8 +119,12 @@ ln -s ~/.dotfiles/zshrc ~/.zshrc
 # Vim (classic)
 ln -s ~/.dotfiles/vimrc ~/.vimrc
 
-# Neovim (modern)
+# Neovim (modern) - individual symlink into ~/.config/
+mkdir -p ~/.config
 ln -s ~/.dotfiles/.config/nvim ~/.config/nvim
+
+# Powerline - individual symlink into ~/.config/
+ln -s ~/.dotfiles/.config/powerline ~/.config/powerline
 
 # Tmux
 ln -s ~/.dotfiles/tmux.conf ~/.tmux.conf
