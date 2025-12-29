@@ -25,14 +25,70 @@ vim.opt.termguicolors = true
 -- Ghostty will provide the color palette
 
 --------------------------------------------------
--- Future Plugin Management (commented for now)
+-- lazy.nvim Plugin Manager Setup
 --------------------------------------------------
--- When ready to add plugins, consider using lazy.nvim:
--- https://github.com/folke/lazy.nvim
---
--- Example plugins you might want:
--- - nvim-lspconfig (LSP for code intelligence)
--- - telescope.nvim (fuzzy finder, better than CtrlP)
--- - nvim-treesitter (better syntax highlighting)
--- - Comment.nvim (easy commenting)
--- - nvim-tree.lua (file explorer)
+-- Bootstrap lazy.nvim
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable", -- latest stable release
+    lazypath,
+  })
+end
+vim.opt.rtp:prepend(lazypath)
+
+-- Plugin specifications
+local plugins = {
+  -- Telescope fuzzy finder
+  {
+    'nvim-telescope/telescope.nvim',
+    tag = '0.1.8',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    config = function()
+      local telescope = require('telescope')
+      local builtin = require('telescope.builtin')
+
+      -- Telescope setup
+      telescope.setup({
+        defaults = {
+          -- Layout
+          layout_strategy = 'horizontal',
+          layout_config = {
+            horizontal = {
+              preview_width = 0.55,
+            },
+          },
+          -- Ignore patterns (like CtrlP)
+          file_ignore_patterns = {
+            "%.git/",
+            "node_modules/",
+            "%.zwc$",
+          },
+        },
+      })
+
+      -- Keybindings
+      -- Ctrl-P for file finding (same as vim CtrlP)
+      vim.keymap.set('n', '<C-p>', builtin.find_files, { desc = 'Find files' })
+
+      -- Leader-based shortcuts
+      vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Find files' })
+      vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = 'Live grep' })
+      vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Find buffers' })
+      vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Help tags' })
+      vim.keymap.set('n', '<leader>fr', builtin.oldfiles, { desc = 'Recent files' })
+    end,
+  },
+}
+
+-- Setup lazy.nvim
+require("lazy").setup(plugins, {
+  -- UI for plugin management
+  ui = {
+    border = "rounded",
+  },
+})
