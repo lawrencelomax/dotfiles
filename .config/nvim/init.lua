@@ -47,7 +47,13 @@ local plugins = {
   {
     'nvim-telescope/telescope.nvim',
     tag = 'v0.2.0',
-    dependencies = { 'nvim-lua/plenary.nvim' },
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      {
+        'nvim-telescope/telescope-fzf-native.nvim',
+        build = 'make',
+      },
+    },
     config = function()
       local telescope = require('telescope')
       local builtin = require('telescope.builtin')
@@ -69,7 +75,18 @@ local plugins = {
             "%.zwc$",
           },
         },
+        extensions = {
+          fzf = {
+            fuzzy = true,
+            override_generic_sorter = true,
+            override_file_sorter = true,
+            case_mode = "smart_case",
+          },
+        },
       })
+
+      -- Load fzf extension for faster sorting
+      telescope.load_extension('fzf')
 
       -- Keybindings
       -- Ctrl-P for file finding (same as vim CtrlP)
