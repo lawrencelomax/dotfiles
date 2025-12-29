@@ -9,9 +9,6 @@
 " Enable Syntax Highlighting
 syntax on
 
-" Set theme
-colorscheme desert
-
 " 256 colors in terminal
 set t_Co=256
 

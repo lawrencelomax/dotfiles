@@ -6,6 +6,8 @@
 --------------------------------------------------
 -- This provides common settings used by both vim and nvim
 -- (appearance, editing behavior, keybindings, etc.)
+-- Note: colorscheme is NOT included in shared config
+-- (vim uses desert in vim-plugins.vim, nvim uses its default)
 vim.cmd('source ~/.dotfiles/vim-shared.vim')
 
 --------------------------------------------------

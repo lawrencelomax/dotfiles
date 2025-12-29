@@ -3,6 +3,12 @@
 " Used only by vim (not nvim)
 
 """""""""""""""""""""""""""""
+" Vim-Specific Colorscheme
+"""""""""""""""""""""""""""""
+" Set theme (desert doesn't work well with nvim's termguicolors)
+colorscheme desert
+
+"""""""""""""""""""""""""""""
 " Vundle Setup
 """""""""""""""""""""""""""""
 " Begin Vundle plugins
