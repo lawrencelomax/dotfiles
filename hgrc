@@ -1,13 +1,41 @@
+# Mercurial (hg) Configuration
+# Mercurial is a distributed version control system similar to git
+# This file configures aliases, merge tools, and pager behavior
+
 [alias]
+# upsl - Update to latest commit in current stack
+# Revset breakdown: heads(descendants(.))
+#   . = current commit (working directory parent)
+#   descendants(.) = all commits descended from current commit
+#   heads(...) = tip commits (no children) from that set
+# Use case: After creating commits on top of current, jump to the latest one
+# Example: If you're at commit A and have A→B→C, upsl takes you to C
 upsl = up 'heads(descendants(.))'
 
 [merge-tools]
+# Configure vimdiff as merge tool for resolving conflicts
+# Launches vim in diff mode with 4 windows showing:
+#   $base = common ancestor (original file)
+#   $local = your changes (current branch)
+#   $output = result file (where resolved changes go)
+#   $other = their changes (incoming branch)
+# +close +close = automatically close $base and $other windows after launch
+# This leaves $local and $output visible for easier conflict resolution
 vimdiff.executable = vim
 vimdiff.args = -d $base $local $output $other +close +close
 
 [extdiff]
+# External diff command using vimdiff
+# Allows 'hg vimdiff' to view changes in vim's diff mode
+# More visual than text-based diff output
 cmd.vimdiff = vimdiff
 
 [pager]
+# Disable pager for 'sl' and 'ssl' commands (Sapling/Meta's Mercurial fork)
+# sl = Sapling's smartlog command (shows commit graph)
+# ssl = Sapling's ssl command
+# attend-* = whether to use pager for that command
+# Setting to false prevents piping through 'less' for these commands
+# Useful because sl/ssl have their own optimized output formatting
 attend-sl = false
 attend-ssl = false
