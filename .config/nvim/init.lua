@@ -6,17 +6,23 @@
 --------------------------------------------------
 -- This provides common settings used by both vim and nvim
 -- (appearance, editing behavior, keybindings, etc.)
--- Note: colorscheme is NOT included in shared config
--- (vim uses desert in vim-plugins.vim, nvim uses its default)
+-- Note: Colors/themes are NOT included in shared config
 vim.cmd('source ~/.dotfiles/vim-shared.vim')
 
 --------------------------------------------------
--- Nvim-Specific Enhancements
+-- Nvim-Specific Color Configuration
 --------------------------------------------------
--- These settings enhance or override the shared config for nvim
+-- Use Ghostty terminal colors (no vim colorscheme)
+-- This allows nvim to inherit Ghostty's theme
 
--- Enhanced terminal colors (24-bit color support)
+-- Enable syntax highlighting with terminal colors
+vim.cmd('syntax on')
+
+-- Use 24-bit terminal colors from Ghostty
 vim.opt.termguicolors = true
+
+-- Don't set a colorscheme - use terminal's colors
+-- Ghostty will provide the color palette
 
 --------------------------------------------------
 -- Future Plugin Management (commented for now)

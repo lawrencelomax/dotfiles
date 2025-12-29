@@ -1,23 +1,11 @@
 " Shared Vim Configuration
 " Used by both vim (via vimrc) and nvim (via init.lua)
 " Contains editor settings, appearance, and keybindings
-" Does NOT include Vundle or plugin-specific configurations
+" Does NOT include colors, themes, or plugin-specific configurations
 
 """""""""""""""""""""""""""""
-" Themes and Colors
+" Basic Settings
 """""""""""""""""""""""""""""
-" Enable Syntax Highlighting
-syntax on
-
-" 256 colors in terminal
-set t_Co=256
-
-" Color Overrides
-highlight Normal ctermbg=NONE
-highlight NonText guibg=#060606
-highlight Folded  guibg=#0A0A0A guifg=#9090D0
-highlight ColorColumn ctermbg=23 guibg=#2c2d27
-
 " Set Text Gutter at 80 chars
 set textwidth=80
 set colorcolumn=+1
@@ -34,11 +22,6 @@ au BufRead,BufNewFile *.include set ft=sh
 " Use Linenumber
 set number
 set numberwidth=3
-
-" Highlight Tab Stops
-syn match tab display "\t"
-" Display tabs as errors
-hi link tab Error
 
 " Display the Current Line with a Cursor
 set cursorline

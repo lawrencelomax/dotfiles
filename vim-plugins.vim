@@ -3,10 +3,26 @@
 " Used only by vim (not nvim)
 
 """""""""""""""""""""""""""""
-" Vim-Specific Colorscheme
+" Vim-Specific Theme and Colors
 """""""""""""""""""""""""""""
+" Enable Syntax Highlighting
+syntax on
+
+" 256 colors in terminal
+set t_Co=256
+
 " Set theme (desert doesn't work well with nvim's termguicolors)
 colorscheme desert
+
+" Color Overrides for desert theme
+highlight Normal ctermbg=NONE
+highlight NonText guibg=#060606
+highlight Folded  guibg=#0A0A0A guifg=#9090D0
+highlight ColorColumn ctermbg=23 guibg=#2c2d27
+
+" Highlight Tab Stops as errors
+syn match tab display "\t"
+hi link tab Error
 
 """""""""""""""""""""""""""""
 " Vundle Setup
