@@ -1,1 +1,19 @@
+# GHCi (Glasgow Haskell Compiler Interactive) Configuration
+# GHCi is the interactive REPL for Haskell programming
+
+# Set custom prompt with blue color
+# Prompt format: <module_name> >
+# ANSI escape sequence breakdown:
+#   \ESC[34m  = Set foreground color to blue (ANSI color code 34)
+#   %s        = Current module name (e.g., "Prelude", "Main", "MyModule")
+#   >         = Prompt symbol
+#   \ESC[m    = Reset all formatting (return to default colors)
+#
+# Example prompt appearance:
+#   Prelude >          (shown in blue)
+#   Main >             (shown in blue)
+#   Data.List >        (shown in blue)
+#
+# Alternative color codes you could use:
+#   30=black, 31=red, 32=green, 33=yellow, 34=blue, 35=magenta, 36=cyan, 37=white
 :set prompt "\ESC[34m%s > \ESC[m"
