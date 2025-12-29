@@ -24,6 +24,10 @@ vim.opt.termguicolors = true
 -- Don't set a colorscheme - use terminal's colors
 -- Ghostty will provide the color palette
 
+-- Make background transparent to use terminal's background
+vim.api.nvim_set_hl(0, 'Normal', { bg = 'NONE' })
+vim.api.nvim_set_hl(0, 'NormalFloat', { bg = 'NONE' })
+
 --------------------------------------------------
 -- lazy.nvim Plugin Manager Setup
 --------------------------------------------------
