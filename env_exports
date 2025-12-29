@@ -1,5 +1,5 @@
 # The one and only
-export EDITOR='vim'
+export EDITOR='nvim'
 
 # tmux needs screen-256 color for ncurses to not get corrupted
 export TERM=screen-256color
