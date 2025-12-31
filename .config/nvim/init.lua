@@ -92,6 +92,7 @@ local plugins = {
     },
     config = function()
       local telescope = require('telescope')
+      local actions = require('telescope.actions')
       local builtin = require('telescope.builtin')
 
       -- Telescope setup
@@ -102,6 +103,21 @@ local plugins = {
           layout_config = {
             horizontal = {
               width = 0.95,
+            },
+          },
+          -- Mappings for preview scrolling (Shift+Arrow keys)
+          mappings = {
+            i = {
+              ["<S-Up>"] = actions.preview_scrolling_up,
+              ["<S-Down>"] = actions.preview_scrolling_down,
+              ["<S-Left>"] = actions.preview_scrolling_left,
+              ["<S-Right>"] = actions.preview_scrolling_right,
+            },
+            n = {
+              ["<S-Up>"] = actions.preview_scrolling_up,
+              ["<S-Down>"] = actions.preview_scrolling_down,
+              ["<S-Left>"] = actions.preview_scrolling_left,
+              ["<S-Right>"] = actions.preview_scrolling_right,
             },
           },
           -- Ignore patterns (like CtrlP)
