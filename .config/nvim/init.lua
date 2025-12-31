@@ -101,7 +101,7 @@ local plugins = {
           layout_strategy = 'horizontal',
           layout_config = {
             horizontal = {
-              preview_width = 0.55,
+              width = 0.95,
             },
           },
           -- Ignore patterns (like CtrlP)
