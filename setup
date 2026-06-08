@@ -1,0 +1,376 @@
+#!/usr/bin/env bash
+#
+# dotfiles setup script
+#
+# Converges your environment to the dotfiles config: skips anything already in a
+# good state and applies what's missing. Prompts before each change by default.
+#
+# Usage: ./setup [--yes] [--force]
+#   --yes,   -y   Non-interactive: assume "yes" to every prompt.
+#   --force, -f   Re-apply config symlinks even if already correct (backs up first).
+#
+
+set -e
+
+# shellcheck source=validate
+source "$(dirname "${BASH_SOURCE[0]}")/validate"
+
+# Options
+ASSUME_YES=0
+FORCE=0
+for arg in "$@"; do
+    case "$arg" in
+        -y|--yes)   ASSUME_YES=1 ;;
+        -f|--force) FORCE=1 ;;
+        -h|--help)  echo "Usage: ./setup [--yes] [--force]"; exit 0 ;;
+        *) echo "Unknown option: $arg (try --help)" >&2; exit 2 ;;
+    esac
+done
+
+# Track what was done
+ACTIONS_PERFORMED=()
+ACTIONS_SKIPPED=()
+ACTIONS_ALREADY_SETUP=()
+
+# Ask yes/no question (auto-yes under --yes)
+ask_yn() {
+    [ "${ASSUME_YES:-0}" -eq 1 ] && return 0
+    local prompt="$1"
+    local default="${2:-n}"
+    local yn
+
+    if [ "$default" = "y" ]; then
+        prompt="$prompt [Y/n]: "
+    else
+        prompt="$prompt [y/N]: "
+    fi
+
+    while true; do
+        print_question "$prompt"
+        read -r yn
+        yn=${yn:-$default}
+        case $yn in
+            [Yy]* ) return 0;;
+            [Nn]* ) return 1;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+}
+
+# Link one component, backing up anything real that's in the way.
+link_component() {
+    local source="$1" target="$2" name="$3" state="$4"
+    local target_dir; target_dir="$(dirname "$target")"
+    [ -d "$target_dir" ] || { mkdir -p "$target_dir"; print_info "  Created $target_dir"; }
+    if [ "$state" = "notlink" ] || [ "$state" = "wrong" ]; then
+        local backup="${target}.backup.$(date +%Y%m%d_%H%M%S)"
+        mv "$target" "$backup"
+        print_info "  Backed up existing $target -> $backup"
+    fi
+    ln -sfn "$source" "$target"
+    print_success "  $name linked ($target)"
+    ACTIONS_PERFORMED+=("$name")
+}
+
+# Converge all config symlinks from the shared manifest (validate).
+# Already-correct components are reported and skipped (unless --force); changes
+# are prompted (unless --yes); host-guarded components that don't apply are noted.
+setup_symlinks() {
+    print_header "Config Symlinks"
+    while IFS='|' read -r name source target guard; do
+        [ -z "$name" ] && continue
+        if [ -n "$guard" ] && ! "$guard"; then
+            print_info "$name — skipped (not applicable on this host)"
+            ACTIONS_SKIPPED+=("$name")
+            continue
+        fi
+        local state; state="$(symlink_state "$source" "$target")"
+        if [ "$state" = "ok" ] && [ "$FORCE" -eq 0 ]; then
+            print_success "$name — already configured"
+            ACTIONS_ALREADY_SETUP+=("$name")
+            continue
+        fi
+        local prompt
+        case "$state" in
+            ok)      prompt="Re-apply $name (already correct)?" ;;
+            notlink) prompt="$name: $target exists and isn't ours — back up and replace?" ;;
+            *)       prompt="Set up $name?" ;;
+        esac
+        if ask_yn "$prompt" "y"; then
+            link_component "$source" "$target" "$name" "$state"
+        else
+            print_info "  Skipped $name"
+            ACTIONS_SKIPPED+=("$name")
+        fi
+    done < <(dotfiles_components)
+    return 0
+}
+
+# ~/.claude/settings.json is OWNED by Claude Code (it writes plugins,
+# marketplaces, and interactive grants there). We don't symlink or replace it;
+# instead we merge the repo defaults in: fill missing keys and union the
+# permission allowlist, while existing values always win. Done with python3
+# (system-provided everywhere) — no jq dependency.
+
+# Canonicalize JSON from stdin for stable comparison; empty on invalid input.
+_json_norm() {
+    python3 -c 'import json,sys; print(json.dumps(json.load(sys.stdin), sort_keys=True))' 2>/dev/null
+}
+
+# Echo the healed settings (defaults merged into the live file), or empty on error.
+claude_merged() {
+    local defaults="$DOTFILES_DIR/.claude/settings.defaults.json"
+    local target="$HOME/.claude/settings.json"
+    [ -f "$defaults" ] || return 1
+    python3 - "$defaults" "$target" <<'PY' 2>/dev/null
+import json, os, sys
+defaults_path, target_path = sys.argv[1], sys.argv[2]
+with open(defaults_path) as f:
+    defaults = json.load(f)
+live = {}
+# A legacy symlink (old setup) is treated as empty — it'll be replaced.
+if os.path.isfile(target_path) and not os.path.islink(target_path):
+    try:
+        text = open(target_path).read().strip()
+        live = json.loads(text) if text else {}
+    except Exception:
+        live = {}
+def merge(base, over):
+    out = dict(base)
+    for k, v in over.items():
+        if isinstance(out.get(k), dict) and isinstance(v, dict):
+            out[k] = merge(out[k], v)
+        else:
+            out[k] = v
+    return out
+merged = merge(defaults, live)  # defaults as base, live values win
+da = (defaults.get("permissions") or {}).get("allow") or []
+la = (live.get("permissions") or {}).get("allow") or []
+merged.setdefault("permissions", {})["allow"] = sorted(set(da) | set(la))
+print(json.dumps(merged, indent=2, sort_keys=True))
+PY
+}
+
+# True (0) if healing would actually change ~/.claude/settings.json.
+claude_heal_pending() {
+    local target="$HOME/.claude/settings.json"
+    [ -L "$target" ] && return 0   # legacy symlink → must be replaced
+    local merged before after
+    merged="$(claude_merged)"
+    [ -z "$merged" ] && return 0   # can't compute → let heal surface the error
+    after="$(printf '%s' "$merged" | _json_norm)"
+    before=""
+    [ -f "$target" ] && before="$(_json_norm < "$target")"
+    [ "$before" != "$after" ]
+}
+
+# Heal ~/.claude/settings.json: merge the repo defaults into the real file
+# (idempotent), reporting whether anything actually changed.
+heal_claude_settings() {
+    local target="$HOME/.claude/settings.json"
+    mkdir -p "$(dirname "$target")"
+
+    if [ -L "$target" ]; then
+        print_info "  Replacing legacy symlink at $target with a real file"
+        rm -f "$target"
+    fi
+
+    local merged
+    merged="$(claude_merged)"
+    if [ -z "$merged" ]; then
+        print_error "  settings merge failed — $target left unchanged"
+        ACTIONS_SKIPPED+=("Claude Code defaults")
+        return 1
+    fi
+
+    local before after
+    after="$(printf '%s' "$merged" | _json_norm)"
+    before=""
+    [ -f "$target" ] && before="$(_json_norm < "$target")"
+    if [ "$before" = "$after" ]; then
+        print_success "  Claude settings already up to date"
+        ACTIONS_ALREADY_SETUP+=("Claude Code defaults")
+    else
+        printf '%s\n' "$merged" > "$target"
+        print_success "  Healed $target (merged in missing defaults)"
+        ACTIONS_PERFORMED+=("Claude Code defaults")
+    fi
+    return 0
+}
+
+# Print summary
+print_summary() {
+    print_header "Setup Summary"
+
+    if [ ${#ACTIONS_PERFORMED[@]} -gt 0 ]; then
+        echo -e "\n${GREEN}${BOLD}Configured (${#ACTIONS_PERFORMED[@]}):${NC}"
+        for action in "${ACTIONS_PERFORMED[@]}"; do
+            echo -e "  ${GREEN}✓${NC} $action"
+        done
+    fi
+
+    if [ ${#ACTIONS_ALREADY_SETUP[@]} -gt 0 ]; then
+        echo -e "\n${CYAN}${BOLD}Already Setup (${#ACTIONS_ALREADY_SETUP[@]}):${NC}"
+        for action in "${ACTIONS_ALREADY_SETUP[@]}"; do
+            echo -e "  ${CYAN}✓${NC} $action"
+        done
+    fi
+
+    if [ ${#ACTIONS_SKIPPED[@]} -gt 0 ]; then
+        echo -e "\n${YELLOW}${BOLD}Skipped (${#ACTIONS_SKIPPED[@]}):${NC}"
+        for action in "${ACTIONS_SKIPPED[@]}"; do
+            echo -e "  ${YELLOW}−${NC} $action"
+        done
+    fi
+
+    echo ""
+}
+
+# Main setup
+main() {
+    # Welcome banner
+    echo -e "${BOLD}${CYAN}"
+    echo "╔════════════════════════════════════════╗"
+    echo "║                                        ║"
+    echo "║       Dotfiles Setup Script            ║"
+    echo "║                                        ║"
+    echo "╚════════════════════════════════════════╝"
+    echo -e "${NC}"
+
+    print_info "This script will help you set up your dotfiles configuration."
+    print_info "You'll be asked for confirmation before each change."
+    echo ""
+
+    # Dotfiles directory (set by validate)
+    print_info "Dotfiles directory: $DOTFILES_DIR"
+    echo ""
+
+    # Homebrew + Brewfile — macOS only (other hosts, e.g. a development server,
+    # use their own package management; Homebrew isn't applicable there).
+    print_header "Homebrew"
+    if [ "$(uname)" != "Darwin" ]; then
+        print_info "Not macOS — skipping Homebrew/Brewfile"
+        ACTIONS_SKIPPED+=("Homebrew")
+    else
+        if command -v brew >/dev/null 2>&1; then
+            print_success "Homebrew already installed"
+            ACTIONS_ALREADY_SETUP+=("Homebrew")
+        elif ask_yn "Install Homebrew?" "y"; then
+            print_info "Installing Homebrew…"
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            # Put brew on PATH for the rest of this script (Apple Silicon path)
+            [ -x /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+            ACTIONS_PERFORMED+=("Homebrew")
+        else
+            print_warning "Skipped Homebrew — Brewfile install will be unavailable"
+            ACTIONS_SKIPPED+=("Homebrew")
+        fi
+
+        if command -v brew >/dev/null 2>&1; then
+            # Per-package status (✓ installed / + missing), and gate on it.
+            local brew_ok=1
+            brew_status "$DOTFILES_DIR/Brewfile" "$DOTFILES_DIR/Brewfile.local" || brew_ok=0
+            if [ "$FORCE" -eq 0 ] && [ "$brew_ok" -eq 1 ]; then
+                print_success "Brewfile apps — all installed"
+                ACTIONS_ALREADY_SETUP+=("Brewfile apps")
+            elif ask_yn "Install apps from Brewfile (brew bundle)?" "y"; then
+                brew bundle --file="$DOTFILES_DIR/Brewfile"
+                if [ -f "$DOTFILES_DIR/Brewfile.local" ]; then
+                    print_info "Applying Brewfile.local (machine-specific)…"
+                    brew bundle --file="$DOTFILES_DIR/Brewfile.local"
+                fi
+                ACTIONS_PERFORMED+=("Brewfile apps")
+            else
+                ACTIONS_SKIPPED+=("Brewfile apps")
+            fi
+        fi
+    fi
+
+    # Check/Install Antigen (required for Zsh configuration)
+    print_header "Antigen Plugin Manager"
+    print_info "Antigen is required for zsh plugins and will be installed to ~/.antigen"
+
+    if [ -d "$HOME/.antigen" ]; then
+        print_success "Antigen already installed at ~/.antigen"
+        ACTIONS_ALREADY_SETUP+=("Antigen plugin manager")
+    else
+        if ask_yn "Clone Antigen to ~/.antigen?" "y"; then
+            print_info "Cloning Antigen..."
+            git clone https://github.com/zsh-users/antigen.git "$HOME/.antigen"
+            print_success "Antigen installed to ~/.antigen"
+            ACTIONS_PERFORMED+=("Antigen plugin manager")
+        else
+            print_warning "Skipped Antigen - Zsh configuration may not work correctly"
+            ACTIONS_SKIPPED+=("Antigen plugin manager")
+        fi
+    fi
+
+    # Config symlinks (converge from the shared manifest in validate)
+    setup_symlinks
+
+    # Claude Code defaults — heal (not symlink) the real settings.json that
+    # Claude Code owns, merging in defaults without overwriting existing values.
+    print_header "Claude Code Defaults"
+    if ! command -v python3 >/dev/null 2>&1; then
+        print_warning "python3 not found — skipping Claude settings heal"
+        ACTIONS_SKIPPED+=("Claude Code defaults")
+    elif [ "$FORCE" -eq 0 ] && ! claude_heal_pending; then
+        print_success "Claude settings already up to date"
+        ACTIONS_ALREADY_SETUP+=("Claude Code defaults")
+    elif ask_yn "Heal ~/.claude/settings.json with dotfiles defaults?" "y"; then
+        heal_claude_settings || true
+    else
+        print_info "  Skipped Claude Code defaults"
+        ACTIONS_SKIPPED+=("Claude Code defaults")
+    fi
+
+    # macOS system defaults — gate on a dry-run so we only prompt/apply (and
+    # only restart apps) when something has actually drifted.
+    print_header "macOS Defaults"
+    if [ "$(uname)" != "Darwin" ]; then
+        print_info "Not macOS — skipping"
+        ACTIONS_SKIPPED+=("macOS defaults")
+    elif [ "$FORCE" -eq 0 ] && "$DOTFILES_DIR/macos" --check; then
+        print_success "macOS defaults — already applied"
+        ACTIONS_ALREADY_SETUP+=("macOS defaults")
+    elif ask_yn "Apply macOS defaults now? (runs ./macos)" "y"; then
+        "$DOTFILES_DIR/macos"
+        ACTIONS_PERFORMED+=("macOS defaults")
+    else
+        ACTIONS_SKIPPED+=("macOS defaults")
+    fi
+
+    # Post-setup instructions
+    print_header "Post-Setup Instructions"
+
+    if [[ " ${ACTIONS_PERFORMED[@]} " =~ "Antigen plugin manager" ]] || [[ " ${ACTIONS_ALREADY_SETUP[@]} " =~ "Antigen plugin manager" ]]; then
+        print_info "Antigen: Installed at ~/.antigen (zsh plugins will auto-install on first shell launch)"
+    fi
+
+    if [[ " ${ACTIONS_PERFORMED[@]} " =~ "Zsh Configuration" ]]; then
+        print_info "Zsh: Run 'source ~/.zshrc' to load configuration (plugins auto-install)"
+    fi
+
+    if [[ " ${ACTIONS_PERFORMED[@]} " =~ "Neovim Configuration" ]]; then
+        print_info "Neovim: Launch 'nvim' to auto-install plugins, then press Ctrl-P!"
+    fi
+
+    # Verify final machine state — setup is a superset of validate's symlink
+    # checks, so we re-run them here for awareness of what actually landed.
+    FAILED=0
+    check_symlinks
+    [ "$FAILED" -eq 0 ] || print_warning "Some components still need attention (see above)."
+
+    # Print summary
+    print_summary
+
+    # Final message
+    print_header "Setup Complete!"
+    print_success "Your dotfiles are ready to use!"
+    echo ""
+}
+
+# Run main (only when executed directly, not when sourced)
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi

@@ -1,0 +1,55 @@
+# Antigen - Zsh Plugin Manager Configuration
+# Antigen is the zsh plugin manager (declares and loads plugins)
+# Plugins are loaded lazily for better shell startup performance
+
+# Source Antigen plugin manager from ~/.antigen/
+# Install with: git clone https://github.com/zsh-users/antigen.git ~/.antigen
+source ~/.antigen/antigen.zsh
+
+# Load oh-my-zsh framework as base
+# Provides common shell functions, completions, and utilities
+antigen use oh-my-zsh
+
+# Zsh Bundles (Plugins)
+# All bundles from oh-my-zsh repository unless specified otherwise
+
+# history - Enhanced shell command history management
+# Provides better history searching, deduplication, and persistence
+antigen bundle history
+
+# history-substring-search - Search command history with up/down arrows
+# Press up/down after typing partial command to search matching history
+# Example: Type "git" then up arrow shows previous git commands
+antigen bundle history-substring-search
+
+# command-not-found - Suggest package installations for missing commands
+# When you type a command that doesn't exist, suggests how to install it
+# Example: "htop" not found → suggests "brew install htop"
+antigen bundle command-not-found
+
+# mercurial - Mercurial (hg) integration
+# Provides hg command completion and status in prompt
+antigen bundle mercurial
+
+# zsh-syntax-highlighting - Real-time syntax highlighting in shell
+# Colors commands green (valid) or red (invalid) as you type
+# Highlights strings, variables, paths, and more
+# Repo: https://github.com/zsh-users/zsh-syntax-highlighting
+antigen bundle zsh-users/zsh-syntax-highlighting
+
+# zsh-autosuggestions - Fish-like autosuggestions
+# Suggests commands from history as you type (shown in gray)
+# Press right arrow to accept suggestion
+# Repo: https://github.com/tarruda/zsh-autosuggestions
+antigen bundle tarruda/zsh-autosuggestions
+
+# liquidprompt - Informative and adaptive shell prompt
+# Shows git/hg status, python virtualenv, battery level, load average, etc.
+# Adapts to show relevant info based on current directory context
+# Repo: https://github.com/nojhan/liquidprompt
+antigen bundle nojhan/liquidprompt
+
+# Apply all bundle configurations and activate plugins
+# This must be called after all bundle declarations
+# Generates plugin cache for faster subsequent shell startups
+antigen apply

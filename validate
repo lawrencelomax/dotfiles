@@ -1,0 +1,238 @@
+#!/usr/bin/env bash
+#
+# dotfiles validation script
+# Checks that documentation and symlinks stay in sync with configuration.
+# Also provides shared helpers (colors, print functions) sourced by setup.
+# Exit code: 0 if all checks pass, 1 if any fail.
+#
+
+set -e
+
+# Dotfiles directory (BASH_SOURCE[0] is this file even when sourced)
+DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+BOLD='\033[1m'
+
+# Print colored messages
+print_header() {
+    echo -e "\n${BOLD}${CYAN}==>${NC} ${BOLD}$1${NC}"
+}
+
+print_info() {
+    echo -e "${BLUE}==>${NC} $1"
+}
+
+print_success() {
+    echo -e "${GREEN}✓${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}!${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}✗${NC} $1"
+}
+
+print_question() {
+    echo -e "${MAGENTA}?${NC} ${BOLD}$1${NC}"
+}
+
+# Host capability checks
+# Ghostty config is only relevant on hosts where the `ghostty` binary is on
+# PATH (e.g. a macOS laptop). On hosts without it (e.g. a development server),
+# its symlink is intentionally skipped by both setup and validate.
+ghostty_available() {
+    command -v ghostty >/dev/null 2>&1
+}
+
+# Per-package Brewfile status. Prints "  ✓ name (kind)" for installed entries
+# and "  + name (kind) — not installed" for missing ones, across the given
+# Brewfile(s). Returns 1 if anything is missing (or brew isn't installed).
+brew_status() {
+    command -v brew >/dev/null 2>&1 || { echo "  brew not installed"; return 1; }
+    local missing=0 file line kind name
+    for file in "$@"; do
+        [ -f "$file" ] || continue
+        while IFS= read -r line; do
+            case "$line" in
+                'brew "'*) kind=formula ;;
+                'cask "'*) kind=cask ;;
+                *) continue ;;
+            esac
+            name="${line#*\"}"; name="${name%%\"*}"
+            if brew list --"$kind" "$name" >/dev/null 2>&1; then
+                echo "  ✓ ${name} (${kind})"
+            else
+                echo "  + ${name} (${kind}) — not installed"
+                missing=1
+            fi
+        done < "$file"
+    done
+    return "$missing"
+}
+
+# ---------------------------------------------------------------------------
+# Component manifest — the single source of truth for config symlinks.
+# Consumed by BOTH setup (to create them) and check_symlinks (to verify),
+# so the list and its host-guards live in exactly one place.
+# Fields:  name | source | target | guard-fn   (empty guard = always applies)
+# ---------------------------------------------------------------------------
+dotfiles_components() {
+    cat <<EOF
+Zsh Configuration|$DOTFILES_DIR/zshrc|$HOME/.zshrc|
+Neovim Configuration|$DOTFILES_DIR/.config/nvim|$HOME/.config/nvim|
+Powerline Configuration|$DOTFILES_DIR/.config/powerline|$HOME/.config/powerline|
+Ghostty Configuration|$DOTFILES_DIR/.config/ghostty|$HOME/.config/ghostty|ghostty_available
+Tmux Configuration|$DOTFILES_DIR/tmux.conf|$HOME/.tmux.conf|
+EOF
+}
+
+# State of a symlink target relative to its desired source.
+# Echoes one of: ok | missing | wrong | notlink
+symlink_state() {
+    local source="$1" target="$2"
+    if [ -L "$target" ]; then
+        if [ "$(readlink "$target")" = "$source" ]; then echo ok; else echo wrong; fi
+    elif [ -e "$target" ]; then
+        echo notlink
+    else
+        echo missing
+    fi
+}
+
+# ---------------------------------------------------------------------------
+# Check 1: Claude Code permissions documented in README.md
+# ---------------------------------------------------------------------------
+check_claude_permissions() {
+    print_header "Claude Code permissions sync"
+
+    local settings_file="$DOTFILES_DIR/.claude/settings.defaults.json"
+    local readme_file="$DOTFILES_DIR/README.md"
+
+    if [ ! -f "$settings_file" ]; then
+        print_error "settings.defaults.json not found: $settings_file"
+        FAILED=1
+        return
+    fi
+    if [ ! -f "$readme_file" ]; then
+        print_error "README.md not found: $readme_file"
+        FAILED=1
+        return
+    fi
+
+    # Extract tool names from settings.json
+    # Bash(tool:*) -> tool, bare names like Read/WebSearch stay as-is
+    local settings_tools
+    settings_tools=$(jq -r '.permissions.allow[]' "$settings_file" \
+        | sed -E 's/^Bash\(([^:]+):\*\)$/\1/' \
+        | sort)
+
+    # Extract backtick-quoted tool names from the "Permissions included" section
+    # The section starts with "**Permissions included:**" and ends at the next
+    # heading (###) or end of file. We grab all backtick-quoted words from it.
+    local readme_tools
+    readme_tools=$(sed -n '/^\*\*Permissions included:\*\*/,/^###/p' "$readme_file" \
+        | grep -oE '`[^`]+`' \
+        | sed 's/`//g' \
+        | sort -u)
+
+    # Compare
+    local undocumented documented_but_missing
+    undocumented=$(comm -23 <(echo "$settings_tools") <(echo "$readme_tools"))
+    documented_but_missing=$(comm -13 <(echo "$settings_tools") <(echo "$readme_tools"))
+
+    local ok=1
+
+    if [ -n "$undocumented" ]; then
+        print_error "Tools in settings.json but NOT documented in README.md:"
+        while IFS= read -r tool; do
+            echo -e "  ${RED}-${NC} $tool"
+        done <<< "$undocumented"
+        ok=0
+    fi
+
+    if [ -n "$documented_but_missing" ]; then
+        print_error "Tools documented in README.md but NOT in settings.json (stale docs):"
+        while IFS= read -r tool; do
+            echo -e "  ${YELLOW}-${NC} $tool"
+        done <<< "$documented_but_missing"
+        ok=0
+    fi
+
+    if [ "$ok" -eq 1 ]; then
+        local count
+        count=$(echo "$settings_tools" | wc -l | tr -d ' ')
+        print_success "All $count permissions are documented and in sync"
+    else
+        FAILED=1
+    fi
+}
+
+# ---------------------------------------------------------------------------
+# Check 2: Config symlinks match the component manifest (machine state)
+# ---------------------------------------------------------------------------
+check_symlinks() {
+    print_header "Config symlinks"
+
+    local ok=1 total=0 correct=0
+    while IFS='|' read -r name source target guard; do
+        [ -z "$name" ] && continue
+        # Host-conditional components: skip when their guard isn't satisfied
+        if [ -n "$guard" ] && ! "$guard"; then
+            print_warning "$name — skipped (not applicable on this host)"
+            continue
+        fi
+        total=$((total + 1))
+        case "$(symlink_state "$source" "$target")" in
+            ok)
+                print_success "$name"
+                correct=$((correct + 1)) ;;
+            missing)
+                print_error "$name — not set up ($target does not exist)"
+                ok=0 ;;
+            notlink)
+                print_error "$name — $target exists but is not a symlink"
+                ok=0 ;;
+            wrong)
+                print_error "$name — symlink points to $(readlink "$target") (expected $source)"
+                ok=0 ;;
+        esac
+    done < <(dotfiles_components)
+
+    if [ "$ok" -eq 1 ]; then
+        print_success "All $total symlinks are correct"
+    else
+        print_info "$correct/$total symlinks correct"
+        FAILED=1
+    fi
+}
+
+# ---------------------------------------------------------------------------
+# Main — only runs when executed directly, not when sourced
+# ---------------------------------------------------------------------------
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    FAILED=0
+
+    echo -e "${BOLD}${CYAN}Dotfiles Documentation Validation${NC}"
+    print_info "Checking README.md stays in sync with configuration files"
+
+    check_claude_permissions
+    check_symlinks
+
+    echo ""
+    if [ "$FAILED" -eq 0 ]; then
+        print_success "All checks passed"
+    else
+        print_error "Some checks failed"
+        exit 1
+    fi
+fi

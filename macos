@@ -1,0 +1,229 @@
+#!/usr/bin/env bash
+#
+# macOS system defaults
+#
+# A curated, idempotent set of system settings. Run once per machine:
+#   ./macos            apply settings (only writes/changes what has drifted)
+#   ./macos --check    dry-run: report which settings have drifted; no changes.
+#                      Exit 0 if everything is already applied, 1 if drift found.
+#
+# Re-running is cheap: settings are applied through set_default, which reads the
+# current value first and only writes (and reports) when it differs. Apps are
+# only restarted when something actually changed, so a no-op run won't, e.g.,
+# bounce the Dock. Review and trim to taste — these are opinionated defaults.
+#
+# Note: avoids settings that require sudo so it can run without a password.
+
+CHECK=0
+[ "${1:-}" = "--check" ] && CHECK=1
+
+# Only run on macOS
+if [ "$(uname)" != "Darwin" ]; then
+    echo "macos: not running on macOS — nothing to do."
+    exit 0
+fi
+
+# Directory this script lives in (so we can call sibling scripts like ./dock)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+PENDING=0   # settings that differ from desired (drift or unset)
+CHANGED=0   # settings actually written this run
+
+# Print a section header (both when applying and when checking, so --check
+# shows status grouped per domain).
+section() { echo "$1"; }
+
+# ---------------------------------------------------------------------------
+# Apply a default only if it differs from the current value.
+#   Usage: set_default [--currentHost] <domain> <key> <type> <value>
+# Reports "  + domain key = value" (unset) or "  ~ domain key: old -> new"
+# (drift). Silent when already correct. Under --check, reports but doesn't write.
+# ---------------------------------------------------------------------------
+set_default() {
+    local host_args=()
+    if [ "$1" = "--currentHost" ]; then host_args=(-currentHost); shift; fi
+    local domain="$1" key="$2" type="$3" value="$4"
+
+    local want="$value"
+    if [ "$type" = "-bool" ]; then
+        case "$value" in
+            true|TRUE|yes|1) want=1 ;;
+            false|FALSE|no|0) want=0 ;;
+        esac
+    fi
+
+    local current rc
+    current="$(defaults "${host_args[@]}" read "$domain" "$key" 2>/dev/null)"
+    rc=$?
+
+    if [ "$rc" -eq 0 ] && [ "$current" = "$want" ]; then
+        # Already correct: show a ✓ under --check, stay silent when applying.
+        [ "$CHECK" -eq 1 ] && echo "  ✓ ${domain} ${key}"
+        return 0
+    fi
+
+    PENDING=$((PENDING + 1))
+    if [ "$rc" -ne 0 ]; then
+        echo "  + ${domain} ${key} = ${value}"
+    else
+        echo "  ~ ${domain} ${key}: ${current} -> ${value}"
+    fi
+    [ "$CHECK" -eq 1 ] && return 0
+    defaults "${host_args[@]}" write "$domain" "$key" "$type" "$value"
+    CHANGED=$((CHANGED + 1))
+}
+
+if [ "$CHECK" -eq 0 ]; then
+    echo "Applying macOS defaults…"
+    # Close System Settings so it doesn't overwrite changes we're about to make
+    osascript -e 'tell application "System Settings" to quit' >/dev/null 2>&1 || true
+else
+    echo "Checking macOS defaults (✓ already applied, ~/+ would change)…"
+fi
+
+###############################################################################
+# Appearance
+###############################################################################
+section "Appearance:"
+set_default NSGlobalDomain AppleInterfaceStyle -string "Dark"
+set_default NSGlobalDomain NSTableViewDefaultSizeMode -int 1
+
+###############################################################################
+# Keyboard & input
+###############################################################################
+section "Keyboard & input:"
+# Fast (but not maxed-out) key repeat and a short delay-until-repeat.
+# KeyRepeat: lower = faster (2 is the fastest the slider offers); 4 is a notch calmer.
+set_default NSGlobalDomain KeyRepeat -int 4
+set_default NSGlobalDomain InitialKeyRepeat -int 15
+set_default NSGlobalDomain ApplePressAndHoldEnabled -bool false
+set_default NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
+set_default NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
+set_default NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
+set_default NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false
+set_default NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
+
+###############################################################################
+# Keyboard remapping — Caps Lock → Escape (all keyboards, native & persistent)
+###############################################################################
+section "Keyboard remapping (Caps Lock -> Escape):"
+# The "0-0-0" modifier-mapping key is what System Settings > Keyboard >
+# Modifier Keys writes for "All Keyboards" — it persists natively (no LaunchAgent
+# needed). 30064771129 = Caps Lock, 30064771113 = Escape. Applies at next login.
+caps_key="com.apple.keyboard.modifiermapping.0-0-0"
+caps_cur="$(defaults -currentHost read -g "$caps_key" 2>/dev/null)"
+if printf '%s' "$caps_cur" | grep -q "HIDKeyboardModifierMappingSrc = 30064771129" \
+   && printf '%s' "$caps_cur" | grep -q "HIDKeyboardModifierMappingDst = 30064771113"; then
+    [ "$CHECK" -eq 1 ] && echo "  ✓ Caps Lock -> Escape (all keyboards)"
+else
+    PENDING=$((PENDING + 1))
+    echo "  ~ Caps Lock -> Escape (all keyboards)"
+    if [ "$CHECK" -eq 0 ]; then
+        defaults -currentHost write -g "$caps_key" \
+            '<array><dict><key>HIDKeyboardModifierMappingSrc</key><integer>30064771129</integer><key>HIDKeyboardModifierMappingDst</key><integer>30064771113</integer></dict></array>'
+        CHANGED=$((CHANGED + 1))
+    fi
+fi
+
+###############################################################################
+# Trackpad
+###############################################################################
+section "Trackpad:"
+set_default com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
+set_default NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+
+###############################################################################
+# Finder
+###############################################################################
+section "Finder:"
+set_default NSGlobalDomain AppleShowAllExtensions -bool true
+set_default com.apple.finder AppleShowAllFiles -bool true
+set_default com.apple.finder ShowPathbar -bool true
+set_default com.apple.finder ShowStatusBar -bool true
+set_default com.apple.finder FXPreferredViewStyle -string "Nlsv"
+set_default com.apple.finder FXDefaultSearchScope -string "SCcf"
+set_default com.apple.finder FXEnableExtensionChangeWarning -bool false
+# Hide the Tags section in the sidebar (de-clutter Apple's defaults)
+set_default com.apple.finder ShowRecentTags -bool false
+[ "$CHECK" -eq 0 ] && chflags nohidden ~/Library 2>/dev/null
+set_default com.apple.desktopservices DSDontWriteNetworkStores -bool true
+set_default com.apple.desktopservices DSDontWriteUSBStores -bool true
+
+###############################################################################
+# Dock (settings here; pinned items are managed by the sibling `dock` script)
+###############################################################################
+section "Dock:"
+set_default com.apple.dock orientation -string "right"
+set_default com.apple.dock autohide -bool false
+set_default com.apple.dock tilesize -int 96
+set_default com.apple.dock minimize-to-application -bool true
+set_default com.apple.dock show-recents -bool false
+
+# Dock items: the `dock` script is idempotent (skips the rebuild + restart when
+# the Dock already matches), so delegating here is cheap on a no-op run.
+if [ "$CHECK" -eq 1 ]; then
+    "${SCRIPT_DIR}/dock" --check || PENDING=$((PENDING + 1))
+else
+    "${SCRIPT_DIR}/dock" || true
+fi
+
+###############################################################################
+# Menu bar (Control Center modules)
+###############################################################################
+section "Menu bar:"
+# 18 = "Show in Menu Bar" (2 = hide). Keys/values are macOS-version sensitive.
+set_default --currentHost com.apple.controlcenter.plist Bluetooth -int 18
+set_default --currentHost com.apple.controlcenter.plist Sound -int 18
+
+###############################################################################
+# Screenshots
+###############################################################################
+section "Screenshots:"
+[ "$CHECK" -eq 0 ] && mkdir -p "${HOME}/Desktop/Screenshots"
+set_default com.apple.screencapture location -string "${HOME}/Desktop/Screenshots"
+set_default com.apple.screencapture type -string "png"
+set_default com.apple.screencapture disable-shadow -bool true
+
+###############################################################################
+# General UI/UX
+###############################################################################
+section "General UI/UX:"
+set_default NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
+set_default NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 -bool true
+set_default NSGlobalDomain PMPrintingExpandedStateForPrint -bool true
+set_default NSGlobalDomain PMPrintingExpandedStateForPrint2 -bool true
+set_default NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
+
+###############################################################################
+# --check summary / apply summary
+###############################################################################
+if [ "$CHECK" -eq 1 ]; then
+    [ "$PENDING" -eq 0 ] && exit 0
+    echo "macos: ${PENDING} setting(s) would change (run ./macos to apply)."
+    exit 1
+fi
+
+# Restart affected apps only if something actually changed (Dock restarts itself
+# from the `dock` script when its items change).
+if [ "$CHANGED" -gt 0 ]; then
+    for app in "Finder" "Dock" "SystemUIServer" "ControlCenter"; do
+        killall "${app}" >/dev/null 2>&1 || true
+    done
+    echo "Done — applied ${CHANGED} change(s). Some need a logout/restart to fully apply."
+else
+    echo "macos: defaults already applied — no changes."
+fi
+
+###############################################################################
+# Manual follow-ups (settings that can't be scripted)
+###############################################################################
+echo
+echo "Manual steps that can't be scripted — set these once via the GUI:"
+web_apps_dir="${HOME}/Applications/Chrome Apps.localized"
+for app in "Gmail" "Google Chat" "Google Calendar"; do
+    if [ -d "${web_apps_dir}/${app}.app" ]; then
+        echo "  - ${app}: System Settings > Notifications > ${app} > turn on 'Badge application icon'"
+    fi
+done
+echo "  - Finder sidebar: Finder > Settings > Sidebar — keep Home under Favorites, enable Connected servers/Bonjour, turn off Recents/AirDrop (Favorites moved to an opaque store in macOS 26 — not scriptable)"
+echo "  - World clocks: Clock.app > World Clock > add Los Angeles (PST), Reykjavik/London (GMT), New York (EST); then add World Clock widgets"

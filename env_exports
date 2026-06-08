@@ -1,0 +1,19 @@
+# The one and only
+export EDITOR='nvim'
+
+# tmux needs screen-256 color for ncurses to not get corrupted
+export TERM=screen-256color
+
+# User-local install directories for package managers:
+# - $HOME/.rbenv/bin: Ruby version manager (rbenv) binaries
+# - $HOME/bin: Personal scripts and binaries
+# - $HOME/.cargo/bin: Rust Cargo package manager binaries
+export PATH=$PATH:$HOME/.rbenv/bin:$HOME/bin:$HOME/.cargo/bin
+
+# Homebrew package manager paths (prepended to take precedence over system binaries)
+# - /opt/homebrew/bin: Homebrew binaries (Apple Silicon location, /usr/local/bin on Intel)
+# - /opt/homebrew/sbin: Homebrew system binaries
+export PATH=/opt/homebrew/bin:/opt/homebrew/sbin:$PATH
+
+# Stops Mercurial Paging Unecessarily
+LESS=FRKX

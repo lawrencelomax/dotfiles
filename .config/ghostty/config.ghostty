@@ -1,0 +1,10 @@
+# Ghostty configuration
+# Managed in ~/.dotfiles; symlinked to ~/.config/ghostty (XDG path).
+# Reload at runtime with cmd+shift+, (macOS).
+#
+# Machine-local overrides go in:
+#   ~/Library/Application Support/com.mitchellh.ghostty/config.ghostty
+# Ghostty loads that macOS path AFTER this one, so its values win — keep
+# host-specific tweaks there to keep this file portable.
+
+theme = iTerm2 Tango Dark

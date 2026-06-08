@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+#
+# Dock items — pin a curated set of apps and folder stacks with dockutil.
+#
+#   ./dock           apply: rebuild the Dock to match the list below.
+#                    Skips the rebuild (and Dock restart) if it already matches.
+#   ./dock --check   dry-run: exit 0 if the Dock already matches, 1 if not.
+#                    No changes.
+#
+# Also invoked automatically by ./macos. Edit dock_apps / dock_folders to
+# add/remove/reorder; missing items are skipped with a warning. Requires dockutil.
+
+CHECK=0
+[ "${1:-}" = "--check" ] && CHECK=1
+
+if [ "$(uname)" != "Darwin" ]; then
+    echo "dock: not running on macOS — nothing to do."
+    exit 0
+fi
+
+if ! command -v dockutil >/dev/null 2>&1; then
+    echo "dock: dockutil not found — install it via the Brewfile (brew \"dockutil\")."
+    exit 1
+fi
+
+# Apps (upper section). Logical order: System Settings (top, just under Finder),
+# browser, the Google web-app suite, messaging, 1Password, then the terminal.
+dock_apps=(
+    "/System/Applications/System Settings.app"
+    "/Applications/Google Chrome.app"
+    "${HOME}/Applications/Chrome Apps.localized/Gmail.app"
+    "${HOME}/Applications/Chrome Apps.localized/Google Calendar.app"
+    "${HOME}/Applications/Chrome Apps.localized/Google Chat.app"
+    "/Applications/WhatsApp.app"   # installed separately (not via brew)
+    "/Applications/1Password.app"
+    "/Applications/Ghostty.app"
+)
+
+# Folder stacks (lower/others section): display as folder, view as list.
+# Logical order: Applications, Home, then Downloads (nearest the Trash).
+dock_folders=(
+    "/Applications"
+    "${HOME}"
+    "${HOME}/Downloads"
+)
+
+# Desired Dock item labels, in order, filtered to items that exist on disk.
+# dockutil labels apps by name (sans .app) and folders by their basename.
+dock_desired_labels() {
+    local item
+    for item in "${dock_apps[@]}";    do [ -d "$item" ] && basename "$item" .app; done
+    for item in "${dock_folders[@]}"; do [ -d "$item" ] && basename "$item";      done
+}
+
+# Current Dock item labels, in order (field 1 of dockutil --list).
+dock_current_labels() {
+    dockutil --list 2>/dev/null | awk -F'\t' '{print $1}'
+}
+
+dock_matches() {
+    [ "$(dock_current_labels)" = "$(dock_desired_labels)" ]
+}
+
+# --check: report status, change nothing.
+if [ "$CHECK" -eq 1 ]; then
+    if dock_matches; then echo "  ✓ Dock items"; exit 0; fi
+    echo "  ~ Dock items differ from desired"
+    exit 1
+fi
+
+# Apply: skip entirely (no rebuild, no Dock restart) if already correct.
+if dock_matches; then
+    echo "Dock items already up to date"
+    exit 0
+fi
+
+echo "Setting Dock items via dockutil…"
+dockutil --no-restart --remove all >/dev/null 2>&1 || true
+
+missing=0
+for app in "${dock_apps[@]}"; do
+    if [ -d "$app" ]; then
+        dockutil --no-restart --add "$app" >/dev/null 2>&1 && echo "  + $(basename "$app" .app)"
+    else
+        echo "  WARNING: $(basename "$app" .app) not installed — not added to the Dock"
+        missing=$((missing + 1))
+    fi
+done
+for folder in "${dock_folders[@]}"; do
+    if [ -d "$folder" ]; then
+        dockutil --no-restart --add "$folder" --view list --display folder >/dev/null 2>&1 \
+            && echo "  + $(basename "$folder")/ (folder, list view)"
+    else
+        echo "  WARNING: $folder not found — not added to the Dock"
+        missing=$((missing + 1))
+    fi
+done
+
+[ "$missing" -gt 0 ] && echo "  (${missing} Dock item(s) missing — install/create them, then re-run ./dock)"
+
+killall Dock >/dev/null 2>&1 || true
+echo "Done."

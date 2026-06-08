@@ -1,0 +1,48 @@
+{
+  "env": {
+    "DISABLE_AUTOUPDATER": "1"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(brew list:*)",
+      "Bash(buck:*)",
+      "Bash(buck2:*)",
+      "Bash(cat:*)",
+      "Bash(chmod:*)",
+      "Bash(convert:*)",
+      "Bash(echo:*)",
+      "Bash(fd:*)",
+      "Bash(find:*)",
+      "Bash(git:*)",
+      "Bash(grep:*)",
+      "Bash(hg:*)",
+      "Bash(identify:*)",
+      "Bash(jq:*)",
+      "Bash(ln:*)",
+      "Bash(ls:*)",
+      "Bash(magick:*)",
+      "Bash(man:*)",
+      "Bash(nm:*)",
+      "Bash(nvim:*)",
+      "Bash(otool:*)",
+      "Bash(pandoc:*)",
+      "Bash(patch:*)",
+      "Bash(pdftotext:*)",
+      "Bash(ping:*)",
+      "Bash(readlink:*)",
+      "Bash(rg:*)",
+      "Bash(sl:*)",
+      "Bash(strings:*)",
+      "Bash(tmux:*)",
+      "Bash(tree:*)",
+      "Bash(xcodebuild:*)",
+      "Bash(xcodegen:*)",
+      "Read",
+      "WebSearch"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "model": "claude-opus-4-8[1m]",
+  "effortLevel": "xhigh"
+}
