@@ -308,6 +308,34 @@ main() {
     # Config symlinks (converge from the shared manifest in validate)
     setup_symlinks
 
+    # Terminfo — install the ghostty terminfo so TERM=xterm-ghostty resolves on
+    # hosts that don't ship it (e.g. a development server reached over SSH).
+    # Compiled into ~/.terminfo (user-level, no root); re-run to restore it after
+    # a host is rebuilt.
+    print_header "Terminfo"
+    local ti_src="$DOTFILES_DIR/xterm-ghostty.terminfo"
+    if ! command -v tic >/dev/null 2>&1; then
+        print_warning "tic not found (ncurses) — skipping terminfo install"
+        ACTIONS_SKIPPED+=("xterm-ghostty terminfo")
+    elif [ ! -f "$ti_src" ]; then
+        print_warning "$ti_src not found — skipping terminfo install"
+        ACTIONS_SKIPPED+=("xterm-ghostty terminfo")
+    elif [ "$FORCE" -eq 0 ] && infocmp xterm-ghostty >/dev/null 2>&1; then
+        print_success "xterm-ghostty terminfo already available"
+        ACTIONS_ALREADY_SETUP+=("xterm-ghostty terminfo")
+    elif ask_yn "Install the xterm-ghostty terminfo into ~/.terminfo?" "y"; then
+        if tic -x "$ti_src" 2>/dev/null; then
+            print_success "  Installed xterm-ghostty terminfo into ~/.terminfo"
+            ACTIONS_PERFORMED+=("xterm-ghostty terminfo")
+        else
+            print_error "  tic failed — terminfo not installed"
+            ACTIONS_SKIPPED+=("xterm-ghostty terminfo")
+        fi
+    else
+        print_info "  Skipped xterm-ghostty terminfo"
+        ACTIONS_SKIPPED+=("xterm-ghostty terminfo")
+    fi
+
     # Claude Code defaults — heal (not symlink) the real settings.json that
     # Claude Code owns, merging in defaults without overwriting existing values.
     print_header "Claude Code Defaults"
