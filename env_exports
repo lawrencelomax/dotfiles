@@ -1,9 +1,6 @@
 # The one and only
 export EDITOR='nvim'
 
-# tmux needs screen-256 color for ncurses to not get corrupted
-export TERM=screen-256color
-
 # User-local install directories for package managers:
 # - $HOME/.rbenv/bin: Ruby version manager (rbenv) binaries
 # - $HOME/bin: Personal scripts and binaries
