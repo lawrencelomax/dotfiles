@@ -72,13 +72,25 @@ link_component() {
     ACTIONS_PERFORMED+=("$name")
 }
 
-# Converge all config symlinks from the shared manifest (validate).
+# Converge config symlinks from the shared manifest (validate).
 # Already-correct components are reported and skipped (unless --force); changes
 # are prompted (unless --yes); host-guarded components that don't apply are noted.
+#
+# The manifest's `guard` field marks symlinks that depend on a tool being
+# installed (e.g. ghostty's config needs the ghostty cask). That dependency
+# drives ordering, so callers can select a subset:
+#   $1 filter: "free" = no guard (dependency-free), "guarded" = has a guard,
+#              anything else / empty = all.
+#   $2 label : optional suffix for the section header.
 setup_symlinks() {
-    print_header "Config Symlinks"
+    local filter="${1:-all}" label="${2:-}"
+    print_header "Config Symlinks${label:+ ($label)}"
     while IFS='|' read -r name source target guard; do
         [ -z "$name" ] && continue
+        case "$filter" in
+            free)    [ -n "$guard" ] && continue ;;
+            guarded) [ -z "$guard" ] && continue ;;
+        esac
         if [ -n "$guard" ] && ! "$guard"; then
             print_info "$name — skipped (not applicable on this host)"
             ACTIONS_SKIPPED+=("$name")
@@ -245,6 +257,12 @@ main() {
     print_info "Dotfiles directory: $DOTFILES_DIR"
     echo ""
 
+    # Dependency-free config symlinks FIRST. These point straight at repo files
+    # and need nothing installed, so we land your shell/editor config up front —
+    # before the slow, network-bound, failure-prone package steps below. (The
+    # guarded ones, e.g. ghostty, depend on a Brewfile install and run after it.)
+    setup_symlinks free "dependency-free"
+
     # Homebrew + Brewfile — macOS only (other hosts, e.g. a development server,
     # use their own package management; Homebrew isn't applicable there).
     print_header "Homebrew"
@@ -299,6 +317,10 @@ main() {
         fi
     fi
 
+    # Host-guarded config symlinks — these depend on a tool the Brewfile installs
+    # (e.g. ghostty's config needs the ghostty cask), so they run AFTER Homebrew.
+    setup_symlinks guarded "host-specific"
+
     # Check/Install Antigen (required for Zsh configuration)
     print_header "Antigen Plugin Manager"
     print_info "Antigen is required for zsh plugins and will be installed to ~/.antigen"
@@ -323,9 +345,6 @@ main() {
             ACTIONS_SKIPPED+=("Antigen plugin manager")
         fi
     fi
-
-    # Config symlinks (converge from the shared manifest in validate)
-    setup_symlinks
 
     # Terminfo — install the ghostty terminfo so TERM=xterm-ghostty resolves on
     # hosts that don't ship it (e.g. a development server reached over SSH).
