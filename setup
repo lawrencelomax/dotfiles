@@ -257,10 +257,16 @@ main() {
             ACTIONS_ALREADY_SETUP+=("Homebrew")
         elif ask_yn "Install Homebrew?" "y"; then
             print_info "Installing Homebrew…"
-            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-            # Put brew on PATH for the rest of this script (Apple Silicon path)
-            [ -x /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
-            ACTIONS_PERFORMED+=("Homebrew")
+            # Guard against set -e: a failed install must not abort the whole
+            # converge (the symlink step below should still run).
+            if /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
+                # Put brew on PATH for the rest of this script (Apple Silicon path)
+                [ -x /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)" || true
+                ACTIONS_PERFORMED+=("Homebrew")
+            else
+                print_warning "Homebrew install failed — continuing without it"
+                ACTIONS_SKIPPED+=("Homebrew")
+            fi
         else
             print_warning "Skipped Homebrew — Brewfile install will be unavailable"
             ACTIONS_SKIPPED+=("Homebrew")
@@ -274,12 +280,19 @@ main() {
                 print_success "Brewfile apps — all installed"
                 ACTIONS_ALREADY_SETUP+=("Brewfile apps")
             elif ask_yn "Install apps from Brewfile (brew bundle)?" "y"; then
-                brew bundle --file="$DOTFILES_DIR/Brewfile"
+                # Guard against set -e: a single failed formula/cask must not
+                # abort the converge and skip the symlink step below.
+                if brew bundle --file="$DOTFILES_DIR/Brewfile"; then
+                    ACTIONS_PERFORMED+=("Brewfile apps")
+                else
+                    print_warning "brew bundle reported failures — continuing with setup"
+                    ACTIONS_SKIPPED+=("Brewfile apps")
+                fi
                 if [ -f "$DOTFILES_DIR/Brewfile.local" ]; then
                     print_info "Applying Brewfile.local (machine-specific)…"
-                    brew bundle --file="$DOTFILES_DIR/Brewfile.local"
+                    brew bundle --file="$DOTFILES_DIR/Brewfile.local" || \
+                        print_warning "Brewfile.local reported failures — continuing"
                 fi
-                ACTIONS_PERFORMED+=("Brewfile apps")
             else
                 ACTIONS_SKIPPED+=("Brewfile apps")
             fi
@@ -296,9 +309,15 @@ main() {
     else
         if ask_yn "Clone Antigen to ~/.antigen?" "y"; then
             print_info "Cloning Antigen..."
-            git clone https://github.com/zsh-users/antigen.git "$HOME/.antigen"
-            print_success "Antigen installed to ~/.antigen"
-            ACTIONS_PERFORMED+=("Antigen plugin manager")
+            # Guard against set -e: a failed clone (e.g. no network) must not
+            # abort the converge before the symlink step below runs.
+            if git clone https://github.com/zsh-users/antigen.git "$HOME/.antigen"; then
+                print_success "Antigen installed to ~/.antigen"
+                ACTIONS_PERFORMED+=("Antigen plugin manager")
+            else
+                print_warning "Antigen clone failed — zsh plugins won't load until this is re-run"
+                ACTIONS_SKIPPED+=("Antigen plugin manager")
+            fi
         else
             print_warning "Skipped Antigen - Zsh configuration may not work correctly"
             ACTIONS_SKIPPED+=("Antigen plugin manager")
