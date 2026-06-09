@@ -104,25 +104,56 @@ set_default NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false
 set_default NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
 
 ###############################################################################
-# Keyboard remapping — Caps Lock → Escape (all keyboards, native & persistent)
+# Keyboard remapping — Caps Lock → Escape (every keyboard, native & persistent)
 ###############################################################################
 section "Keyboard remapping (Caps Lock -> Escape):"
-# The "0-0-0" modifier-mapping key is what System Settings > Keyboard >
-# Modifier Keys writes for "All Keyboards" — it persists natively (no LaunchAgent
-# needed). 30064771129 = Caps Lock, 30064771113 = Escape. Applies at next login.
-caps_key="com.apple.keyboard.modifiermapping.0-0-0"
-caps_cur="$(defaults -currentHost read -g "$caps_key" 2>/dev/null)"
-if printf '%s' "$caps_cur" | grep -q "HIDKeyboardModifierMappingSrc = 30064771129" \
-   && printf '%s' "$caps_cur" | grep -q "HIDKeyboardModifierMappingDst = 30064771113"; then
-    [ "$CHECK" -eq 1 ] && echo "  ✓ Caps Lock -> Escape (all keyboards)"
-else
-    PENDING=$((PENDING + 1))
-    echo "  ~ Caps Lock -> Escape (all keyboards)"
-    if [ "$CHECK" -eq 0 ]; then
-        defaults -currentHost write -g "$caps_key" \
-            '<array><dict><key>HIDKeyboardModifierMappingSrc</key><integer>30064771129</integer><key>HIDKeyboardModifierMappingDst</key><integer>30064771113</integer></dict></array>'
-        CHANGED=$((CHANGED + 1))
+# macOS stores modifier remaps PER keyboard. The "0-0-0" key is the "All
+# Keyboards" default that System Settings > Keyboard > Modifier Keys writes, and
+# it persists natively (no LaunchAgent). BUT any per-device key
+# (com.apple.keyboard.modifiermapping.<vendor>-<product>-0) overrides it, and
+# external/Bluetooth keyboards frequently ship or acquire an identity override
+# (Caps Lock -> Caps Lock) that silently defeats the global remap. So — to work
+# for ANY keyboard with no hardcoded vendor/product — we set the default AND
+# rewrite every per-device mapping macOS currently knows about to Caps -> Escape.
+# 30064771129 = Caps Lock, 30064771113 = Escape. Applies at next login.
+#
+# Note: a per-device key is rewritten to ONLY Caps->Escape, so any other custom
+# modifier remap on that specific device would be replaced — this script's intent
+# is caps->escape and nothing else (matching the single-entry "0-0-0" default).
+caps_src=30064771129
+caps_dst=30064771113
+caps_value="<array><dict><key>HIDKeyboardModifierMappingSrc</key><integer>${caps_src}</integer><key>HIDKeyboardModifierMappingDst</key><integer>${caps_dst}</integer></dict></array>"
+
+# Every modifier-mapping key currently set (one per keyboard macOS has seen),
+# always including the "0-0-0" all-keyboards default even if not yet present.
+caps_keys="$(defaults -currentHost read -g 2>/dev/null \
+    | grep -oE 'com\.apple\.keyboard\.modifiermapping\.[0-9]+-[0-9]+-[0-9]+')"
+caps_keys="$(printf '%s\ncom.apple.keyboard.modifiermapping.0-0-0\n' "$caps_keys" \
+    | grep . | sort -u)"
+
+while IFS= read -r caps_k; do
+    [ -z "$caps_k" ] && continue
+    caps_cur="$(defaults -currentHost read -g "$caps_k" 2>/dev/null)"
+    if printf '%s' "$caps_cur" | grep -q "HIDKeyboardModifierMappingSrc = ${caps_src}" \
+       && printf '%s' "$caps_cur" | grep -q "HIDKeyboardModifierMappingDst = ${caps_dst}"; then
+        [ "$CHECK" -eq 1 ] && echo "  ✓ Caps Lock -> Escape (${caps_k##*.})"
+    else
+        PENDING=$((PENDING + 1))
+        echo "  ~ Caps Lock -> Escape (${caps_k##*.})"
+        if [ "$CHECK" -eq 0 ]; then
+            defaults -currentHost write -g "$caps_k" "$caps_value"
+            CHANGED=$((CHANGED + 1))
+        fi
     fi
+done <<< "$caps_keys"
+
+# Apply live to every connected keyboard too, so it takes effect now without a
+# logout. No --matching → applies to all HID devices for this session (the
+# persistent per-device writes above survive reboots / reconnects).
+if [ "$CHECK" -eq 0 ] && command -v hidutil >/dev/null 2>&1; then
+    hidutil property --set \
+        '{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x700000039,"HIDKeyboardModifierMappingDst":0x700000029}]}' \
+        >/dev/null 2>&1
 fi
 
 ###############################################################################
