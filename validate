@@ -197,6 +197,13 @@ check_symlinks() {
             continue
         fi
         total=$((total + 1))
+        # A symlink to a deleted source still readlinks to the expected path, so
+        # symlink_state would call it "ok"; check the source exists up front.
+        if [ ! -e "$source" ]; then
+            print_error "$name — source missing in repo ($source)"
+            ok=0
+            continue
+        fi
         case "$(symlink_state "$source" "$target")" in
             ok)
                 print_success "$name"
