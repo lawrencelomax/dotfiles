@@ -47,7 +47,11 @@ ask_yn() {
 
     while true; do
         print_question "$prompt"
-        read -r yn
+        # Read the answer from the controlling terminal, not stdin. setup_symlinks
+        # runs its prompts inside `while read ... done < <(dotfiles_components)`,
+        # so a bare `read` would consume the NEXT manifest line as the "answer"
+        # (silently dropping that component and mis-answering this one).
+        read -r yn </dev/tty
         yn=${yn:-$default}
         case $yn in
             [Yy]* ) return 0;;
