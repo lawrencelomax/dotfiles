@@ -47,11 +47,16 @@ print_question() {
 }
 
 # Host capability checks
-# Ghostty config is only relevant on hosts where the `ghostty` binary is on
-# PATH (e.g. a macOS laptop). On hosts without it (e.g. a development server),
-# its symlink is intentionally skipped by both setup and validate.
+# Ghostty config is only relevant on hosts where Ghostty is installed (e.g. a
+# macOS laptop); on hosts without it (e.g. a development server) its symlink is
+# intentionally skipped by both setup and validate. Detect the app bundle as
+# well as the CLI: the ghostty cask installs /Applications/Ghostty.app but puts
+# no `ghostty` on PATH, so a first-run guarded pass right after `brew bundle`
+# would otherwise miss it and skip linking the config.
 ghostty_available() {
-    command -v ghostty >/dev/null 2>&1
+    command -v ghostty >/dev/null 2>&1 \
+        || [ -d "/Applications/Ghostty.app" ] \
+        || [ -d "$HOME/Applications/Ghostty.app" ]
 }
 
 # Per-package Brewfile status. Prints "  ✓ name (kind)" for installed entries
